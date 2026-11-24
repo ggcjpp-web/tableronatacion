@@ -1,0 +1,1361 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#081421">
+<title>Tablero de natación V7.19 · Por Gato Plaza</title>
+<style>
+:root{--bg:#07111f;--text:#f0f7ff;--alternate:#10243a;--columns:#16385b;--title:#ecf5ff;--subtitle:#8dc5ee;--accent:#ffd64d;--finished:#61e4d4;--red:#ff747e;--line:rgba(159,189,223,.15);--shadow:0 20px 65px rgba(0,0,0,.3);color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overflow-x:hidden}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.4}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}button:active:not(:disabled){transform:translateY(1px)}
+.app-shell{min-height:100dvh;display:flex;flex-direction:column;gap:12px;padding:12px}.operator-toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:rgba(83,123,161,.11);border:1px solid var(--line);border-radius:14px;padding:9px 12px}.toolbar-left,.toolbar-right{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.app-mark{font-size:13px;letter-spacing:.07em;font-weight:800;color:var(--subtitle);margin-right:9px}.btn{border:1px solid var(--line);border-radius:10px;background:rgba(128,168,199,.12);color:var(--text);padding:10px 13px;font-size:14px;font-weight:750;white-space:nowrap;min-height:42px}.btn:hover:not(:disabled){filter:brightness(1.15)}.btn-primary{background:var(--accent);border-color:transparent;color:#0e1621}.btn-danger{border-color:rgba(255,116,126,.38);color:var(--red)}.status-chip{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--subtitle);border:1px solid var(--line);border-radius:100px;padding:9px 11px}.screen-board{display:flex;flex:1;flex-direction:column;min-height:calc(100dvh - 91px);border:1px solid var(--line);border-radius:15px;overflow:hidden;background:var(--bg)}
+.board-top{padding:clamp(15px,2.5vh,26px) clamp(15px,2.6vw,40px);display:flex;gap:clamp(11px,1.9vw,25px);align-items:center;border-bottom:1px solid var(--line);min-height:114px}.club-logo{width:clamp(48px,7vw,84px);height:clamp(48px,7vw,84px);object-fit:contain;flex-shrink:0;border-radius:10px}.club-logo:not([src]){display:none}.board-headings{flex:1;min-width:0}.event-title{font-size:clamp(20px,3.4vw,58px);font-weight:900;letter-spacing:.006em;line-height:1.05;color:var(--title);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.event-subtitle{font-weight:600;letter-spacing:.09em;margin-top:7px;font-size:clamp(11px,1.4vw,21px);color:var(--subtitle);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:1em}.event-numbering{display:flex;gap:clamp(9px,1.6vw,22px);justify-content:flex-end;flex-shrink:0}.number-tile{min-width:clamp(65px,8vw,144px);text-align:right}.number-label{font-size:clamp(10px,1.1vw,17px);color:var(--subtitle);font-weight:850;letter-spacing:.15em}.number-value{font-size:clamp(26px,4.4vw,70px);color:var(--accent);font-variant-numeric:tabular-nums;line-height:1.1;font-weight:900}
+.lane-grid{display:grid;grid-template-columns:var(--board-cols);align-items:center;column-gap:clamp(8px,1.5vw,28px);padding-left:clamp(12px,2.4vw,36px);padding-right:clamp(12px,2.4vw,36px)}.column-head{min-height:clamp(42px,6vh,70px);background:var(--columns);font-size:clamp(11px,1.35vw,20px);text-transform:uppercase;letter-spacing:.085em;font-weight:850;color:var(--text)}.column-head .head-time{text-align:right}.column-head .head-place{text-align:center}.lane-rows{flex:1;display:flex;flex-direction:column;min-height:0}.lane-row{flex:1;min-height:clamp(64px,8vh,120px);border-bottom:1px solid var(--line);position:relative}.lane-row:nth-child(even){background:var(--alternate)}.lane-row.inactive{opacity:.38}.lane-id{font-weight:900;font-size:clamp(29px,4.4vw,70px);font-variant-numeric:tabular-nums;color:var(--text);line-height:1}.swimmer-name{font-size:clamp(15px,2.05vw,33px);font-weight:780;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}.swimmer-mini{font-size:11px;font-weight:600;color:var(--subtitle);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:none}.club-col{font-size:clamp(12px,1.45vw,23px);color:var(--subtitle);font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.place-col{font-weight:950;font-size:clamp(27px,4.2vw,66px);text-align:center;font-variant-numeric:tabular-nums;color:var(--finished)}.time-col{font-size:clamp(24px,4.4vw,68px);text-align:right;letter-spacing:-.025em;font-weight:850;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap;font-feature-settings:"tnum"}.lane-row.done .time-col{color:var(--finished)}.lane-row.dq .time-col,.lane-row.dq .place-col{color:var(--red)}.lane-row.dq .time-col{font-size:clamp(24px,3.5vw,54px)}.control-col{display:flex;justify-content:flex-end;gap:6px;align-items:center}.lane-action{border:1px solid var(--line);color:var(--text);border-radius:10px;background:rgba(124,157,186,.1);font-weight:900;min-height:38px;padding:5px 10px;white-space:nowrap}.lane-action.touch-stop{background:var(--accent);border-color:transparent;color:#081421;min-width:66px;min-height:44px}.lane-action.touch-stop.undo{background:rgba(97,228,212,.2);color:var(--finished)}.lane-action.dq-btn{font-size:13px;color:var(--red);border-color:rgba(255,116,126,.3)}.lane-action.dq-btn.selected{background:var(--red);color:#210b0d}.board-footer{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:9px clamp(14px,2.4vw,36px);min-height:39px;color:var(--subtitle);font-size:clamp(10px,1.2vw,16px);font-weight:600}.board-message{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.signature{color:var(--subtitle);font-size:clamp(8px,.72vw,11px);opacity:.78;white-space:nowrap;display:flex;align-items:center;gap:4px;margin-left:auto;font-weight:650;letter-spacing:.015em}.signature .sig-text{display:inline-block}.paw-icon{width:16px;height:16px;fill:currentColor}
+/* Modal de configuracion */
+dialog{background:#111f31;color:#eff7ff;border:1px solid #39536c;border-radius:18px;padding:0;width:min(890px,calc(100vw - 20px));max-height:min(94dvh,990px);box-shadow:0 30px 100px #0009}dialog::backdrop{background:rgba(0,0,0,.72);backdrop-filter:blur(4px)}.dialog-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 22px;border-bottom:1px solid #3a4e62;position:sticky;top:0;background:#111f31;z-index:2}.dialog-top h2{font-size:21px;margin:0}.close-icon{background:transparent;color:#eff7ff;border:none;font-size:30px;line-height:1;padding:2px 10px}.dialog-scroll{overflow-y:auto;max-height:calc(94dvh - 149px);padding:20px 22px 26px}.cfg-section{border:1px solid #32475b;padding:16px;border-radius:13px;margin-bottom:14px}.cfg-section h3{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#8ec8eb;margin:0 0 16px}.field-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}.field-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.field{min-width:0}.field label,.color-field label{display:block;color:#b8d1e7;font-size:12px;font-weight:700;margin-bottom:5px}.field input:not([type=checkbox]),.field select{display:block;width:100%;background:#0a1624;color:#eff7ff;padding:10px;border:1px solid #476179;border-radius:8px;min-height:41px}.toggles{display:flex;flex-wrap:wrap;gap:12px 22px;margin-top:15px}.toggle{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:650;cursor:pointer}.toggle input{width:18px;height:18px;accent-color:#eac84e}.color-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.color-field{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 10px;border:1px solid #344c64;border-radius:10px}.color-field label{margin:0}.color-field input{width:47px;height:37px;border:0;background:transparent;padding:0;cursor:pointer}.section-top{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap}.roster-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.roster-card{padding:11px;background:#0b1828;border:1px solid #2a455e;border-radius:11px;min-width:0}.roster-card .row-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;color:#ffda5f;font-weight:850}.roster-fields{display:grid;grid-template-columns:2fr 1.4fr .85fr;gap:7px}.roster-fields input{width:100%;background:#172c43;border:1px solid #385c79;border-radius:7px;min-width:0;min-height:38px;padding:8px;color:white;font-size:13px}.roster-fields input::placeholder{color:#91aec8}.logo-control{display:flex;align-items:center;gap:15px;flex-wrap:wrap}.logo-preview{width:66px;height:66px;border:1px dashed #52728f;border-radius:12px;object-fit:contain;padding:5px;background:#0b1828}.logo-preview:not([src]){visibility:hidden}.small-info{color:#9bb6cb;font-size:12px;line-height:1.5}.dialog-bottom{position:sticky;bottom:0;display:flex;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid #3a4e62;background:#111f31;z-index:2}.cfg-btn{border-radius:9px;border:1px solid #496681;background:#233a51;color:white;padding:10px 14px;min-height:42px;font-weight:700}.cfg-btn.primary{background:#ffd64d;color:#081421;border:0}.cfg-btn.red{color:#ff9da4}.row-inline{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:100;font-size:13px;font-weight:700;padding:12px 18px;border-radius:11px;background:#dbeffb;color:#102337;box-shadow:var(--shadow);visibility:hidden;max-width:calc(100vw - 30px)}.toast.show{visibility:visible}
+/* Vista proyectada: solo el tablero */
+body.display-only .app-shell{padding:0;gap:0}body.display-only .operator-toolbar{display:none}body.display-only .screen-board{min-height:100dvh;border:none;border-radius:0}body.display-only .control-col,body.display-only .head-action{display:none!important}body.display-only .lane-row{min-height:0}body.display-only .board-top{min-height:13vh}body.display-only .column-head{min-height:6vh}body.display-only .board-footer{min-height:4vh}body.display-only .lane-rows{min-height:0;flex:1}body.display-only .screen-board{height:100dvh}body.display-only{cursor:none}
+@media(max-width:850px){.app-shell{gap:8px;padding:7px}.board-top{min-height:94px}.lane-grid{column-gap:8px;padding-left:12px;padding-right:12px}.column-head{min-height:40px}.lane-row{min-height:67px}.swimmer-mini{display:block;margin-top:3px}.club-col{display:none!important}.swimmer-col{display:block!important}.column-head .head-person{display:block!important}.column-head .head-club{display:none!important}.lane-grid{grid-template-columns:var(--mobile-cols)!important}.swimmer-name{font-size:clamp(13px,2.35vw,22px)}.time-col{font-size:clamp(20px,3.1vw,38px)}.lane-row.dq .time-col{font-size:clamp(19px,2.7vw,30px)}.place-col{font-size:clamp(23px,3.1vw,40px)}.lane-id{font-size:clamp(27px,3.7vw,45px)}.event-title{font-size:clamp(18px,3.2vw,32px)}.number-value{font-size:clamp(24px,3.4vw,39px)}.number-label{font-size:10px}.field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.roster-grid{grid-template-columns:1fr}body.display-only .lane-row{min-height:0}}
+@media(max-width:570px){.app-mark{display:none}.operator-toolbar{padding:8px}.toolbar-left,.toolbar-right{gap:5px}.btn{padding:9px 10px;font-size:12px;min-height:39px}.status-chip{font-size:10px;padding:8px}.board-top{padding:12px;gap:8px;min-height:90px}.club-logo{width:39px;height:39px}.event-subtitle{font-size:10px;margin-top:4px}.event-numbering{gap:8px}.number-tile{min-width:44px}.number-value{font-size:28px}.number-label{font-size:9px}.lane-grid{padding-left:7px;padding-right:7px;column-gap:4px}.lane-row{min-height:68px}.lane-action{min-height:35px;font-size:11px;padding:5px}.lane-action.touch-stop{min-width:43px;min-height:39px;padding:4px 7px;font-size:11px}.lane-action.dq-btn{font-size:10px;padding:5px;min-width:31px;min-height:39px}.control-col{gap:3px}.column-head{font-size:9px;letter-spacing:0}.place-col{font-size:24px}.time-col{font-size:clamp(18px,4.7vw,28px);letter-spacing:-.05em}.lane-row.dq .time-col{font-size:18px}.lane-id{font-size:29px}.swimmer-name{font-size:13px}.swimmer-mini{font-size:9px}.field-grid.two,.color-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dialog-scroll{padding:10px}.dialog-top{padding:12px 15px}.dialog-bottom{padding:10px}.cfg-section{padding:12px}.roster-fields{grid-template-columns:1fr 1fr .6fr}.board-footer{padding-left:10px;padding-right:10px}}
+@media(max-width:380px){.btn{padding:8px;font-size:11px}.status-chip{display:none}.swimmer-mini{display:none}.number-tile{min-width:38px}.number-value{font-size:24px}.event-title{font-size:17px}.lane-action.touch-stop{min-width:34px}.lane-action.dq-btn{padding:4px}.time-col{font-size:17px}.lane-row.dq .time-col{font-size:16px}}
+
+/* v2 · Ajuste geométrico sin scroll: ocho pistas, a cualquier altura de ventana */
+html,body{height:100%;overflow:hidden}
+.app-shell{height:100dvh;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);overflow:hidden}
+.screen-board{height:100%;min-height:0;max-height:100%;display:grid;grid-template-rows:clamp(60px,16%,140px) clamp(27px,6%,59px) minmax(0,1fr) clamp(24px,4.3%,39px);overflow:hidden}
+.board-top,.column-head,.board-footer{min-height:0;min-width:0;overflow:hidden}
+.lane-rows{display:grid;grid-template-rows:repeat(8,minmax(0,1fr));height:100%;min-height:0;overflow:hidden}
+.lane-row{height:100%;min-height:0;min-width:0;overflow:hidden}
+.lane-row>*{min-width:0;max-height:100%}
+.board-top{padding:clamp(4px,calc(var(--bh,7px)*1.6),18px) clamp(10px,2.3vw,35px)}
+.club-logo{width:clamp(30px,calc(var(--bh,7px)*9.4),80px);height:clamp(30px,calc(var(--bh,7px)*9.4),80px)}
+.event-title{font-size:clamp(16px,min(calc(var(--bw,12px)*3.4),calc(var(--bh,7px)*6.4)),58px)}
+.event-subtitle{font-size:clamp(9px,min(calc(var(--bw,12px)*1.4),calc(var(--bh,7px)*2.45)),21px);margin-top:clamp(2px,calc(var(--bh,7px)*.6),7px)}
+.number-label{font-size:clamp(8px,min(calc(var(--bw,12px)*1.15),calc(var(--bh,7px)*1.8)),17px)}
+.number-value{font-size:clamp(18px,min(calc(var(--bw,12px)*4.4),calc(var(--bh,7px)*7.4)),70px)}
+.column-head{font-size:clamp(9px,min(calc(var(--bw,12px)*1.35),calc(var(--bh,7px)*2.6)),20px)}
+.lane-id{font-size:clamp(18px,min(calc(var(--bw,12px)*4.2),calc(var(--bh,7px)*6.7)),70px)}
+.swimmer-name{font-size:clamp(11px,min(calc(var(--bw,12px)*2),calc(var(--bh,7px)*3.8)),33px)}
+.club-col{font-size:clamp(10px,min(calc(var(--bw,12px)*1.4),calc(var(--bh,7px)*2.85)),23px)}
+.place-col{font-size:clamp(18px,min(calc(var(--bw,12px)*4.2),calc(var(--bh,7px)*6.6)),66px)}
+.time-col{font-size:clamp(18px,min(calc(var(--bw,12px)*4.4),calc(var(--bh,7px)*6.35)),68px);min-width:0;letter-spacing:-.045em}
+.lane-row.dq .time-col{font-size:clamp(15px,min(calc(var(--bw,12px)*3.5),calc(var(--bh,7px)*5.5)),54px)}
+.board-footer{padding-top:2px;padding-bottom:2px;font-size:clamp(9px,min(calc(var(--bw,12px)*1.1),calc(var(--bh,7px)*2.15)),16px)}
+.lane-action{min-height:0;height:clamp(22px,calc(var(--bh,7px)*4.8),42px);padding:2px 7px}
+.lane-action.touch-stop{min-height:0;height:clamp(24px,calc(var(--bh,7px)*5.5),44px)}
+/* Vista de proyección centrada y ajustada al área visible de la pantalla */
+body.display-only .app-shell{display:flex;flex-direction:column;justify-content:center;align-items:center;width:100vw;height:100dvh;padding:0;gap:0;overflow:hidden}
+body.display-only .screen-board{flex:none;min-height:0;max-height:100%;width:100vw;height:100dvh;border:0;border-radius:0}
+body.display-only .board-top,body.display-only .column-head,body.display-only .board-footer{min-height:0}
+body.display-only .lane-row{min-height:0}
+body.display-only.board-compact.has-names .club-col,body.display-only.board-compact.has-names .column-head .head-club{display:none!important}
+body.display-only.board-compact.has-names .swimmer-mini{display:block;font-size:clamp(8px,min(calc(var(--bw,9px)*1.8),calc(var(--bh,7px)*1.7)),13px);margin-top:2px}
+body.display-only.board-compact .lane-grid{grid-template-columns:var(--projection-compact-cols)!important;column-gap:clamp(3px,calc(var(--bw,9px)*.6),12px);padding-left:clamp(5px,calc(var(--bw,9px)*1.6),18px);padding-right:clamp(5px,calc(var(--bw,9px)*1.6),18px)}
+body.display-only.board-compact .number-tile{min-width:clamp(30px,calc(var(--bw,9px)*6.4),75px)}
+body.display-only.board-compact .time-col{font-size:clamp(14px,min(calc(var(--bw,9px)*3.85),calc(var(--bh,7px)*6.1)),49px)}
+body.display-only.board-compact .lane-row.dq .time-col{font-size:clamp(13px,min(calc(var(--bw,9px)*3.6),calc(var(--bh,7px)*5.8)),42px)}
+/* También cabe completa en celulares pequeños sin tapar controles */
+@media(max-width:850px){
+ .app-shell{height:100dvh;min-height:0}
+ .screen-board{min-height:0}
+ .lane-row{min-height:0}
+ .column-head{min-height:0}
+ .board-top{min-height:0}
+ .time-col{font-size:clamp(14px,min(calc(var(--bw,5px)*3.85),calc(var(--bh,6px)*5.2)),37px)}
+ .place-col{font-size:clamp(16px,min(calc(var(--bw,5px)*3.7),calc(var(--bh,6px)*5.5)),38px)}
+ .lane-id{font-size:clamp(17px,min(calc(var(--bw,5px)*3.6),calc(var(--bh,6px)*5.4)),45px)}
+ .swimmer-name{font-size:clamp(10px,min(calc(var(--bw,5px)*2.25),calc(var(--bh,6px)*2.7)),22px)}
+ .lane-action.touch-stop{min-height:0;height:clamp(20px,calc(var(--bh,6px)*5.5),39px)}
+}
+@media(max-height:560px){
+ .screen-board{grid-template-rows:clamp(39px,14%,75px) clamp(23px,6%,37px) minmax(0,1fr) 22px}
+ .board-top{padding-top:2px;padding-bottom:2px}
+ .event-subtitle{margin-top:1px}
+ .board-footer{padding-top:0;padding-bottom:0}
+ .lane-action,.lane-action.touch-stop{height:clamp(18px,calc(var(--bh,5px)*5),30px)}
+}
+
+/* v3: ventana de configuración estilo Windows, compacta, sin formulario de desplazamiento continuo */
+.screen-board{font-family:var(--board-font,Inter,ui-sans-serif,system-ui,"Segoe UI",Arial,sans-serif)}
+.time-col,.lane-id,.place-col,.number-value{font-family:var(--number-font,Inter,ui-sans-serif,system-ui,"Segoe UI",Arial,sans-serif)}
+#settingsDialog{width:min(790px,calc(100vw - 24px));height:min(532px,calc(100dvh - 24px));max-height:calc(100dvh - 16px);border:1px solid #5b758b;border-radius:10px;box-shadow:0 26px 70px #000b;background:#ecf1f7;color:#172a3b;overflow:hidden;padding:0;color-scheme:light}
+#settingsDialog::backdrop{background:rgba(2,11,20,.64);backdrop-filter:blur(2px)}
+.win-dialog{display:grid;grid-template-rows:46px minmax(0,1fr) 57px;width:100%;height:100%;min-height:0}
+#settingsDialog .dialog-top{position:static;background:#dae7f2;border-bottom:1px solid #b4c6d7;display:flex;align-items:center;padding:0 0 0 15px;min-height:0}
+#settingsDialog .dialog-caption{display:flex;align-items:center;gap:9px;min-width:0}
+#settingsDialog .dialog-caption h2{font-size:15px;color:#18344f;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#settingsDialog .dialog-app-icon{display:grid;place-items:center;color:#0c5b8e;width:19px;height:19px;font-size:18px}
+#settingsDialog .close-icon{font-family:"Segoe UI",Arial,sans-serif;align-self:stretch;font-size:23px;color:#38536b;width:51px;border-radius:0;padding:0;margin-left:auto}
+#settingsDialog .close-icon:hover{background:#d93642;color:#fff}
+.settings-layout{display:grid;grid-template-columns:164px minmax(0,1fr);min-height:0;height:100%;overflow:hidden}
+.settings-nav{display:flex;flex-direction:column;padding:11px 7px;gap:2px;background:#e3eaf2;border-right:1px solid #c1d0dd;overflow-y:auto;min-height:0}
+#settingsDialog .settings-tab{font:600 13px "Segoe UI",Arial,sans-serif;color:#344c62;text-align:left;border:1px solid transparent;background:transparent;border-radius:5px;padding:9px 10px;display:flex;align-items:center;gap:9px;white-space:nowrap;min-height:36px}
+#settingsDialog .settings-tab.active{background:#fff;border-color:#b8cad9;color:#075d9d;box-shadow:inset 3px 0 #167fc3}
+#settingsDialog .settings-tab:hover:not(.active){background:#d3e0eb}
+.settings-content{min-height:0;overflow:hidden;background:#f5f8fc}
+.cfg-page{height:100%;overflow:auto;padding:19px 21px 14px}
+.cfg-page[hidden]{display:none!important}
+#settingsDialog .cfg-page h3{margin:0 0 17px;font-size:16px;line-height:1.15;color:#163b5a;font-weight:750;text-transform:none;letter-spacing:0}
+#settingsDialog .field-grid{gap:11px}
+#settingsDialog .field label,#settingsDialog .color-field label{color:#344e64;font-size:12px;font-weight:650;margin-bottom:5px}
+#settingsDialog .field input:not([type=checkbox]),#settingsDialog .field select{min-height:34px;height:34px;font-size:13px;padding:6px 9px;color:#1a2d40;background:#fff;border:1px solid #b3c5d4;border-radius:5px}
+#settingsDialog .field input:focus,#settingsDialog .field select:focus{border-color:#2b7db8}
+#settingsDialog .mini-group{margin-top:18px;padding:12px;border:1px solid #cbd9e4;background:#fff;border-radius:7px}
+#settingsDialog .mini-group-label{font-size:12px;font-weight:750;color:#325675;margin-bottom:10px}
+#settingsDialog .toggles{margin-top:0;gap:10px 15px}
+#settingsDialog .toggle{color:#2d455a;font-size:12px;gap:6px;font-weight:550}
+#settingsDialog .toggle input{accent-color:#1977b7;width:15px;height:15px;margin:0}
+#settingsDialog .compact-toggles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+#settingsDialog .small-info{font-size:12px;color:#597085;line-height:1.55}
+#settingsDialog .dialog-bottom{position:static;background:#e9f0f6;border-top:1px solid #c2d0db;display:flex;align-items:center;padding:9px 17px;justify-content:flex-end;gap:9px}
+#settingsDialog .cfg-btn{font:600 13px "Segoe UI",Arial,sans-serif;border:1px solid #a8bac9;background:#fff;color:#29445a;padding:7px 14px;min-height:34px;border-radius:5px;white-space:nowrap}
+#settingsDialog .cfg-btn:hover{background:#dceefa}
+#settingsDialog .cfg-btn.primary{background:#1675b6;border-color:#1675b6;color:#fff;min-width:85px}
+#settingsDialog .cfg-btn.primary:hover{background:#095f9c}
+#settingsDialog .cfg-btn.red{color:#b92735}
+#settingsDialog .theme-buttons{margin:0 0 14px}
+#settingsDialog .color-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#settingsDialog .color-field{background:#fff;border:1px solid #c5d4e1;border-radius:6px;padding:5px 10px;min-height:43px}
+#settingsDialog .color-field label{margin:0}
+#settingsDialog .color-field input{width:43px;height:29px}
+#settingsDialog .roster-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+#settingsDialog .roster-card{padding:9px;border:1px solid #c4d6e4;background:#fff;border-radius:7px}
+#settingsDialog .roster-card .row-title{color:#166399;font-size:12px;margin-bottom:7px}
+#settingsDialog .roster-card .row-title .toggle{font-size:11px}
+#settingsDialog .roster-fields{grid-template-columns:1.55fr 1fr .75fr;gap:5px}
+#settingsDialog .roster-fields input{min-height:29px;font-size:11px;padding:5px 6px;background:#f6f9fb;border:1px solid #c2d2df;border-radius:4px;color:#1e3950}
+#settingsDialog .roster-fields input::placeholder{color:#8a9dae}
+#settingsDialog .logo-preview{background:white;border-color:#b8d0df}
+#settingsDialog .logo-control input[type=file]{color:#29465b;font-size:12px;max-width:285px}
+#settingsDialog .type-sample{display:grid;place-items:center;gap:10px;background:#fff;border:1px solid #c5d5e3;border-radius:8px;margin:17px 0 9px;padding:20px 10px;min-height:128px;overflow:hidden;text-align:center}
+#settingsDialog .type-sample-title{font-size:22px;font-weight:800;color:#163a5b;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#settingsDialog .type-sample-time{font-size:38px;font-weight:800;font-variant-numeric:tabular-nums;color:#075f9e;letter-spacing:-.03em}
+@media(max-width:680px){
+ #settingsDialog{width:calc(100vw - 12px);height:min(650px,calc(100dvh - 12px))}
+ .win-dialog{grid-template-rows:43px minmax(0,1fr) 54px}
+ .settings-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:47px minmax(0,1fr)}
+ .settings-nav{flex-direction:row;align-items:center;gap:4px;padding:4px 7px;overflow-x:auto;overflow-y:hidden;border-right:0;border-bottom:1px solid #c1d0dd;scrollbar-width:thin}
+ #settingsDialog .settings-tab{min-height:36px;padding:7px 9px;flex-shrink:0;font-size:12px}
+ #settingsDialog .settings-tab.active{box-shadow:inset 0 -3px #167fc3}
+ .cfg-page{padding:14px 13px}
+ #settingsDialog .cfg-page h3{margin-bottom:12px}
+ #settingsDialog .field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #settingsDialog .compact-toggles{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #settingsDialog .roster-grid{grid-template-columns:1fr}
+}
+@media(max-width:390px){#settingsDialog .field-grid.two{grid-template-columns:1fr}#settingsDialog .type-sample-title{font-size:16px}#settingsDialog .type-sample-time{font-size:30px}}
+/* v4 · programación olímpica y navegación compacta */
+#settingsDialog .cfg-page[data-panel="competition"]{padding-top:13px}
+#settingsDialog .cfg-page[data-panel="competition"] h3{margin-bottom:10px}
+#settingsDialog .cfg-page[data-panel="competition"] .mini-group{margin-top:10px}
+@media(min-width:681px){#settingsDialog .cfg-page[data-panel="competition"] .compact-toggles{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}}
+
+
+#settingsDialog .event-preview{color:#236b91;font-size:12px;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis;flex:1}
+#settingsDialog .auto-advance-group{margin-top:11px;padding:9px 10px;display:flex;gap:5px 15px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+#settingsDialog .auto-advance-group .small-info{font-size:11px;margin:0}
+#settingsDialog .program-info{margin:2px 0 12px}
+#settingsDialog .event-program-head,#settingsDialog .event-program-row{display:grid;grid-template-columns:50px minmax(155px,1fr) 102px 55px 30px;align-items:center;gap:7px;min-width:0}
+#settingsDialog .event-program-head{font-size:11px;font-weight:800;color:#46667d;padding:0 6px 6px}
+#settingsDialog .event-program-list{display:flex;flex-direction:column;gap:7px}
+#settingsDialog .event-program-row{padding:7px 6px;border:1px solid #c9d8e4;border-radius:7px;background:#fff}
+#settingsDialog .event-program-row .event-id{font-size:12px;color:#21678e;font-weight:800;text-align:center}
+#settingsDialog .event-program-row select,#settingsDialog .event-program-row input{width:100%;min-width:0;height:32px;border-radius:5px;border:1px solid #b3c5d4;background:#fff;color:#1a2d40;font-size:12px;padding:4px 5px}
+#settingsDialog .event-program-row button{border:0;background:#fbe5e7;color:#b92735;min-width:27px;height:29px;border-radius:5px;font-size:18px}
+#settingsDialog .event-program-row button:disabled{opacity:.2}
+#settingsDialog .program-empty{padding:20px 10px;text-align:center;font-size:13px;color:#5f7584;background:#fff;border:1px dashed #c9d8e4;border-radius:7px}
+@media(max-width:680px){#settingsDialog .event-program-head,#settingsDialog .event-program-row{grid-template-columns:35px minmax(115px,1fr) 72px 38px 27px;gap:3px}#settingsDialog .event-program-row select,#settingsDialog .event-program-row input{font-size:10px;padding:3px 2px}#settingsDialog .event-program-head{font-size:9px}}
+
+/* V5 · Geometría vectorial original del cronómetro Dragones (no es una fuente web).
+   Adapta la escala a cada pista y conserva las centésimas pequeñas. */
+.time-col.clock-svg{display:flex;align-items:center;justify-content:flex-end;min-width:0;width:100%;height:100%;line-height:1;letter-spacing:0;overflow:hidden;padding:2px 0}
+.time-col.clock-svg .dragon-seven-svg{display:block;width:100%;height:100%;max-width:100%;max-height:100%;overflow:visible;flex-shrink:1}
+.dragon-seven-svg .svg-digit-path,.dragon-seven-svg .svg-colon{fill:currentColor;stroke:none;shape-rendering:geometricPrecision}
+#settingsDialog .type-sample-time.clock-svg{display:flex;align-items:center;justify-content:center;width:min(330px,95%);height:67px;min-height:54px;line-height:1;color:#075f9e}
+#settingsDialog .type-sample-time.clock-svg .dragon-seven-svg{width:100%;height:100%;max-width:100%;max-height:100%}
+@media(max-width:390px){#settingsDialog .type-sample-time.clock-svg{height:54px;width:min(270px,100%)}}
+
+/* V6: estilos de colores alternados y tamaño por zona, limitados por el alto de las 8 pistas */
+.lane-row:nth-child(odd){background:var(--lane-odd-bg,var(--bg));color:var(--lane-odd-text,var(--text))}
+.lane-row:nth-child(even){background:var(--lane-even-bg,var(--alternate));color:var(--lane-even-text,var(--text))}
+.lane-row .lane-id,.lane-row .swimmer-name,.lane-row .swimmer-mini,.lane-row .club-col,.lane-row .place-col,.lane-row .time-col,
+.lane-row.done:not(.dq) .time-col{color:inherit}
+.lane-row .swimmer-mini{opacity:.82}
+.lane-row.dq .time-col,.lane-row.dq .place-col{color:var(--red)}
+/* Escala de texto con límite geométrico; 8 carriles siempre visibles */
+.event-title{font-size:clamp(12px,min(calc(var(--bw,12px)*3.4*var(--sz-title,1)),calc(var(--bh,7px)*6.4*var(--sz-title,1))),min(68px,calc(var(--bh,7px)*9)))}
+.event-subtitle{font-size:clamp(8px,min(calc(var(--bw,12px)*1.4*var(--sz-subtitle,1)),calc(var(--bh,7px)*2.45*var(--sz-subtitle,1))),min(28px,calc(var(--bh,7px)*4)))}
+.number-label{font-size:clamp(7px,min(calc(var(--bw,12px)*1.15*var(--sz-eventLabel,1)),calc(var(--bh,7px)*1.8*var(--sz-eventLabel,1))),min(21px,calc(var(--bh,7px)*3)))}
+.number-value{font-size:clamp(15px,min(calc(var(--bw,12px)*4.4*var(--sz-eventValue,1)),calc(var(--bh,7px)*7.4*var(--sz-eventValue,1))),min(75px,calc(var(--bh,7px)*10)))}
+.column-head{font-size:clamp(8px,min(calc(var(--bw,12px)*1.35*var(--sz-headers,1)),calc(var(--bh,7px)*2.6*var(--sz-headers,1))),min(22px,calc(var(--bh,7px)*3.6)))}
+.lane-id{font-size:clamp(15px,min(calc(var(--bw,12px)*4.2*var(--sz-lane,1)),calc(var(--bh,7px)*6.7*var(--sz-lane,1))),min(73px,calc(var(--bh,7px)*7.5)))}
+.swimmer-name{font-size:clamp(9px,min(calc(var(--bw,12px)*2*var(--sz-swimmer,1)),calc(var(--bh,7px)*3.8*var(--sz-swimmer,1))),min(37px,calc(var(--bh,7px)*5)))}
+.club-col{font-size:clamp(9px,min(calc(var(--bw,12px)*1.4*var(--sz-club,1)),calc(var(--bh,7px)*2.85*var(--sz-club,1))),min(26px,calc(var(--bh,7px)*4)))}
+.place-col{font-size:clamp(15px,min(calc(var(--bw,12px)*4.2*var(--sz-place,1)),calc(var(--bh,7px)*6.6*var(--sz-place,1))),min(70px,calc(var(--bh,7px)*7.5)))}
+.time-col{font-size:clamp(13px,min(calc(var(--bw,12px)*4.4*var(--sz-clock,1)),calc(var(--bh,7px)*6.35*var(--sz-clock,1))),min(68px,calc(var(--bh,7px)*7.5)))}
+.lane-row.dq .time-col{font-size:clamp(12px,min(calc(var(--bw,12px)*3.5*var(--sz-clock,1)),calc(var(--bh,7px)*5.5*var(--sz-clock,1))),min(54px,calc(var(--bh,7px)*7.1)))}
+.board-footer{font-size:clamp(8px,min(calc(var(--bw,12px)*1.1*var(--sz-footer,1)),calc(var(--bh,7px)*2.15*var(--sz-footer,1))),min(17px,calc(var(--bh,7px)*3)))}
+.signature{font-size:clamp(7px,min(calc(var(--bw,12px)*.72),calc(var(--bh,7px)*1.4)),11px)}
+.time-col.clock-svg .dragon-seven-svg{width:min(100%,calc(100% * var(--sz-clock,1)));height:min(100%,calc(100% * var(--sz-clock,1)));max-width:100%;max-height:100%}
+body.display-only.board-compact.has-names .swimmer-mini{font-size:clamp(8px,min(calc(var(--bw,9px)*1.8*var(--sz-club,1)),calc(var(--bh,7px)*1.7*var(--sz-club,1))),14px)}
+body.display-only.board-compact .time-col:not(.clock-svg){font-size:clamp(12px,min(calc(var(--bw,9px)*3.85*var(--sz-clock,1)),calc(var(--bh,7px)*6.1*var(--sz-clock,1))),min(49px,calc(var(--bh,7px)*7.5)))}
+body.display-only.board-compact .lane-row.dq .time-col:not(.clock-svg){font-size:clamp(12px,min(calc(var(--bw,9px)*3.6*var(--sz-clock,1)),calc(var(--bh,7px)*5.8*var(--sz-clock,1))),min(44px,calc(var(--bh,7px)*7)))}
+#settingsDialog .preset-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0 12px}
+#settingsDialog .preset-card{background:white;border:2px solid #c6d6e3;border-radius:8px;text-align:left;cursor:pointer;color:#29465e;padding:8px 9px;min-height:78px;display:grid;grid-template-rows:auto 12px 12px;gap:4px;overflow:hidden}
+#settingsDialog .preset-card[aria-pressed="true"]{border-color:#127bbc;background:#eaf5ff;box-shadow:0 0 0 1px #127bbc}
+#settingsDialog .preset-card:focus-visible{outline:3px solid #157dba;outline-offset:1px}
+#settingsDialog .preset-card .preset-name{font-size:11px;line-height:1.2;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#settingsDialog .preset-card .preset-row{height:12px;border-radius:3px;display:flex;justify-content:space-between;padding:0 6px;font-size:9px;line-height:12px;overflow:hidden;font-family:Consolas,monospace;font-weight:700}
+#settingsDialog .palette-preview{background:white;border:1px solid #c4d5e3;border-radius:7px;padding:7px;margin:8px 0 10px}
+#settingsDialog .palette-preview-top{font-size:12px;font-weight:800;padding:6px 8px;border-radius:4px 4px 0 0}
+#settingsDialog .palette-preview-row{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;font-weight:700;font-size:13px}
+#settingsDialog .palette-preview-row span:last-child{font-family:Consolas,monospace}
+#settingsDialog .color-controls-caption{display:flex;align-items:center;justify-content:space-between;margin-top:9px;margin-bottom:7px;gap:8px;color:#33546f;font-size:12px;font-weight:750}
+#settingsDialog .color-controls-caption span:last-child{font-weight:500;color:#607c92}
+#settingsDialog .color-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+#settingsDialog .color-field{min-height:37px;padding:3px 8px}
+#settingsDialog .color-field input{width:39px;height:28px}
+#settingsDialog .size-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+#settingsDialog .size-tools h3{margin:0}
+#settingsDialog .size-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 11px}
+#settingsDialog .size-control{display:flex;flex-direction:column;gap:5px;border:1px solid #ccdae6;background:#fff;border-radius:7px;padding:7px 10px;min-width:0}
+#settingsDialog .size-control label{font-size:12px;font-weight:700;color:#34516b;display:flex;justify-content:space-between;gap:8px}
+#settingsDialog .size-control output{color:#176a9b;font-variant-numeric:tabular-nums;min-width:40px;text-align:right}
+#settingsDialog .size-control input[type=range]{width:100%;height:17px;accent-color:#1979b7;cursor:pointer}
+#settingsDialog .sizes-preview{background:#07111f;color:#fff;border:1px solid #b9cddc;border-radius:7px;padding:7px 10px;margin-top:11px;overflow:hidden}
+#settingsDialog .sizes-preview-title{font-size:calc(17px*var(--sz-title,1));font-weight:800;color:var(--preview-title,#fff);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#settingsDialog .sizes-preview-subtitle{font-size:calc(10px*var(--sz-subtitle,1));color:var(--preview-subtitle,#9dd4fc)}
+#settingsDialog .sizes-preview-headers{font-size:calc(9px*var(--sz-headers,1));display:grid;grid-template-columns:36px 1fr 50px 120px;gap:3px;background:var(--preview-columns,#123455);padding:5px 7px;margin-top:5px}
+#settingsDialog .sizes-preview-row{display:grid;grid-template-columns:36px 1fr 50px 120px;gap:3px;align-items:center;background:var(--preview-row,#11263d);color:var(--preview-text,#fff);padding:5px 7px;min-height:38px;overflow:hidden}
+#settingsDialog .sizes-preview-lane{font-size:calc(20px*var(--sz-lane,1));font-weight:800}
+#settingsDialog .sizes-preview-name{font-size:calc(13px*var(--sz-swimmer,1));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#settingsDialog .sizes-preview-place{font-size:calc(18px*var(--sz-place,1));font-weight:800}
+#settingsDialog .sizes-preview-clock{font-size:calc(18px*var(--sz-clock,1));font-family:Consolas,monospace;text-align:right;font-weight:700;white-space:nowrap}
+#settingsDialog .sizes-preview-footer{font-size:calc(9px*var(--sz-footer,1));padding:2px 4px;color:var(--preview-subtitle,#9dd4fc)}
+@media(max-width:680px){#settingsDialog .preset-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#settingsDialog .size-grid{grid-template-columns:1fr 1fr}#settingsDialog .sizes-preview-headers,#settingsDialog .sizes-preview-row{grid-template-columns:20px minmax(0,1fr) 32px 84px}#settingsDialog .sizes-preview-clock{font-size:calc(14px*var(--sz-clock,1))}}
+@media(max-width:400px){#settingsDialog .size-grid{grid-template-columns:1fr}}
+
+/* La proyección es un marcador, no una consola: nunca muestra instrucciones operativas. */
+body.display-only .board-message{display:none!important}
+/* V7.1: orden, visibilidad de cronómetros y estilos / colores de podio */
+.screen-board[data-podium-style="row"] .lane-row.podium-1{background:var(--medal-gold-bg,#735217)!important;color:var(--medal-gold-text,#fff3be)!important}
+.screen-board[data-podium-style="row"] .lane-row.podium-2{background:var(--medal-silver-bg,#46576a)!important;color:var(--medal-silver-text,#f4f8ff)!important}
+.screen-board[data-podium-style="row"] .lane-row.podium-3{background:var(--medal-bronze-bg,#6c4934)!important;color:var(--medal-bronze-text,#fff1dc)!important}
+.screen-board[data-podium-style="row"] .lane-row.podium-1 .place-col,.screen-board[data-podium-style="row"] .lane-row.podium-2 .place-col,.screen-board[data-podium-style="row"] .lane-row.podium-3 .place-col{color:inherit}
+.screen-board[data-podium-style="place"] .lane-row.podium-1 .place-col{color:var(--medal-gold-bg,#735217)!important}
+.screen-board[data-podium-style="place"] .lane-row.podium-2 .place-col{color:var(--medal-silver-bg,#46576a)!important}
+.screen-board[data-podium-style="place"] .lane-row.podium-3 .place-col{color:var(--medal-bronze-bg,#6c4934)!important}
+.screen-board[data-podium-style="marker"] .lane-row.podium-1,.screen-board[data-podium-style="marker"] .lane-row.podium-2,.screen-board[data-podium-style="marker"] .lane-row.podium-3,.screen-board[data-podium-style="dot"] .lane-row.podium-1,.screen-board[data-podium-style="dot"] .lane-row.podium-2,.screen-board[data-podium-style="dot"] .lane-row.podium-3,.screen-board[data-podium-style="column"] .lane-row.podium-1,.screen-board[data-podium-style="column"] .lane-row.podium-2,.screen-board[data-podium-style="column"] .lane-row.podium-3{position:relative}
+.screen-board[data-podium-style="marker"] .lane-row.podium-1::before,.screen-board[data-podium-style="marker"] .lane-row.podium-2::before,.screen-board[data-podium-style="marker"] .lane-row.podium-3::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px}
+.screen-board[data-podium-style="marker"] .lane-row.podium-1::before{background:var(--medal-gold-bg,#735217)}
+.screen-board[data-podium-style="marker"] .lane-row.podium-2::before{background:var(--medal-silver-bg,#46576a)}
+.screen-board[data-podium-style="marker"] .lane-row.podium-3::before{background:var(--medal-bronze-bg,#6c4934)}
+.screen-board[data-podium-style="marker"] .lane-row.podium-1 .place-col{color:var(--medal-gold-bg,#735217)!important}
+.screen-board[data-podium-style="marker"] .lane-row.podium-2 .place-col{color:var(--medal-silver-bg,#46576a)!important}
+.screen-board[data-podium-style="marker"] .lane-row.podium-3 .place-col{color:var(--medal-bronze-bg,#6c4934)!important}
+.screen-board[data-podium-style="dot"] .lane-row.podium-1 .place-col,.screen-board[data-podium-style="dot"] .lane-row.podium-2 .place-col,.screen-board[data-podium-style="dot"] .lane-row.podium-3 .place-col{position:relative;padding-left:.62em}
+.screen-board[data-podium-style="dot"] .lane-row.podium-1 .place-col::before,.screen-board[data-podium-style="dot"] .lane-row.podium-2 .place-col::before,.screen-board[data-podium-style="dot"] .lane-row.podium-3 .place-col::before{content:"";position:absolute;left:.08em;top:50%;width:.28em;height:.28em;border-radius:999px;transform:translateY(-50%)}
+.screen-board[data-podium-style="dot"] .lane-row.podium-1 .place-col{color:var(--medal-gold-bg,#735217)!important}
+.screen-board[data-podium-style="dot"] .lane-row.podium-2 .place-col{color:var(--medal-silver-bg,#46576a)!important}
+.screen-board[data-podium-style="dot"] .lane-row.podium-3 .place-col{color:var(--medal-bronze-bg,#6c4934)!important}
+.screen-board[data-podium-style="dot"] .lane-row.podium-1 .place-col::before{background:var(--medal-gold-bg,#735217)}
+.screen-board[data-podium-style="dot"] .lane-row.podium-2 .place-col::before{background:var(--medal-silver-bg,#46576a)}
+.screen-board[data-podium-style="dot"] .lane-row.podium-3 .place-col::before{background:var(--medal-bronze-bg,#6c4934)}
+.screen-board[data-podium-style="column"] .lane-row.podium-1 .place-col,.screen-board[data-podium-style="column"] .lane-row.podium-2 .place-col,.screen-board[data-podium-style="column"] .lane-row.podium-3 .place-col{align-self:stretch;display:flex;align-items:center;justify-content:center;margin:.18em 0;border-radius:10px}
+.screen-board[data-podium-style="column"] .lane-row.podium-1 .place-col{background:var(--medal-gold-bg,#735217)!important;color:var(--medal-gold-text,#fff3be)!important}
+.screen-board[data-podium-style="column"] .lane-row.podium-2 .place-col{background:var(--medal-silver-bg,#46576a)!important;color:var(--medal-silver-text,#f4f8ff)!important}
+.screen-board[data-podium-style="column"] .lane-row.podium-3 .place-col{background:var(--medal-bronze-bg,#6c4934)!important;color:var(--medal-bronze-text,#fff1dc)!important}
+#settingsDialog .mode-set{border:1px solid #c5d6e2;border-radius:7px;background:#fff;padding:12px 12px 11px;margin:0 0 13px;min-width:0}
+#settingsDialog .mode-set legend{font-size:12px;font-weight:800;color:#245171;padding:0 6px}
+#settingsDialog .mode-options{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+#settingsDialog .mode-choice{display:flex;align-items:flex-start;gap:9px;padding:11px;border:1px solid #c8d6e2;border-radius:7px;cursor:pointer;line-height:1.3;min-width:0}
+#settingsDialog .mode-choice:has(input:checked){border-color:#1675b6;background:#e7f4fe;box-shadow:inset 0 0 0 1px #1675b6}
+#settingsDialog .mode-choice input{accent-color:#1675b6;flex:none;margin:2px 0 0}
+#settingsDialog .mode-choice span{display:flex;flex-direction:column;gap:6px;min-width:0}
+#settingsDialog .mode-choice strong{font-size:12px;color:#203f58}
+#settingsDialog .mode-choice small{font-size:11px;color:#557086}
+#settingsDialog .mode-choice .mode-demo{font-family:Consolas,"Courier New",monospace;color:#0872b2;font-size:11px;font-weight:700;white-space:nowrap}
+#settingsDialog .medal-heading{margin:15px 0 8px;font-size:13px;font-weight:800;color:#234a69}
+#settingsDialog .medal-subheading{margin:11px 0 7px;font-size:12px;font-weight:800;color:#325876}
+#settingsDialog .medal-preset-grid,#settingsDialog .medal-style-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#settingsDialog .medal-style-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+#settingsDialog .medal-card,#settingsDialog .medal-style-card{background:#fff;border:2px solid #c6d6e3;border-radius:8px;text-align:left;cursor:pointer;color:#29465e;padding:8px 9px;min-height:82px;display:grid;gap:5px;overflow:hidden}
+#settingsDialog .medal-style-card{min-height:92px}
+#settingsDialog .medal-card[aria-pressed="true"],#settingsDialog .medal-style-card[aria-pressed="true"]{border-color:#127bbc;background:#eaf5ff;box-shadow:0 0 0 1px #127bbc}
+#settingsDialog .medal-card:focus-visible,#settingsDialog .medal-style-card:focus-visible{outline:3px solid #157dba;outline-offset:1px}
+#settingsDialog .medal-card .medal-card-name,#settingsDialog .medal-style-card .medal-card-name{font-size:11px;line-height:1.2;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#settingsDialog .medal-card .medal-card-rows{border-radius:5px;overflow:hidden;border:1px solid #d1dce6}
+#settingsDialog .medal-card .medal-card-row{display:flex;justify-content:space-between;gap:8px;padding:3px 7px;font-size:9px;font-weight:800}
+#settingsDialog .medal-style-card .medal-style-demo{position:relative;border:1px solid #d1dce6;border-radius:6px;background:#f7fbff;padding:6px 7px;display:grid;grid-template-columns:24px 1fr 34px 46px;align-items:center;gap:4px;font-size:9px;font-weight:800;color:#29465e;min-height:42px}
+#settingsDialog .medal-style-card .medal-style-demo .demo-place{justify-self:center;font-size:14px;position:relative}
+#settingsDialog .medal-style-card[data-style="row"] .medal-style-demo{background:var(--medal-gold-bg,#735217);color:var(--medal-gold-text,#fff3be);border-color:transparent}
+#settingsDialog .medal-style-card[data-style="place"] .medal-style-demo .demo-place{color:var(--medal-gold-bg,#735217)}
+#settingsDialog .medal-style-card[data-style="marker"] .medal-style-demo::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--medal-gold-bg,#735217);border-radius:6px 0 0 6px}
+#settingsDialog .medal-style-card[data-style="marker"] .medal-style-demo .demo-place{color:var(--medal-gold-bg,#735217)}
+#settingsDialog .medal-style-card[data-style="dot"] .medal-style-demo .demo-place{color:var(--medal-gold-bg,#735217);padding-left:.55em}
+#settingsDialog .medal-style-card[data-style="dot"] .medal-style-demo .demo-place::before{content:"";position:absolute;left:0;top:50%;width:.28em;height:.28em;border-radius:999px;background:var(--medal-gold-bg,#735217);transform:translateY(-50%)}
+#settingsDialog .medal-style-card[data-style="column"] .medal-style-demo .demo-place{background:var(--medal-gold-bg,#735217);color:var(--medal-gold-text,#fff3be);border-radius:6px;padding:2px 0;width:100%}
+#settingsDialog .medal-config-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+#settingsDialog .medal-config{border:1px solid #cad9e5;background:#fff;border-radius:7px;padding:7px;min-width:0}
+#settingsDialog .medal-name{font-size:12px;font-weight:750;color:#284960;margin-bottom:6px}
+#settingsDialog .medal-fields{display:flex;justify-content:space-between;gap:5px}
+#settingsDialog .medal-fields label{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:650;color:#597186;flex:1;min-width:0}
+#settingsDialog .medal-fields input{height:28px;width:100%;max-width:70px;min-width:0;padding:1px;border:1px solid #b9cad8;border-radius:4px;background:#fff;cursor:pointer}
+#settingsDialog .medal-preview{margin-top:8px;border-radius:6px;overflow:hidden;border:1px solid #becdd8}
+#settingsDialog .medal-preview>div{display:flex;justify-content:space-between;gap:10px;padding:6px 11px;font-weight:850;font-size:12px;position:relative}
+#settingsDialog .medal-preview>div span:last-child{font-family:Consolas,monospace}
+#settingsDialog .medal-preview[data-style="row"]>[data-medal-preview="gold"]{background:var(--medal-gold-bg,#735217);color:var(--medal-gold-text,#fff3be)}
+#settingsDialog .medal-preview[data-style="row"]>[data-medal-preview="silver"]{background:var(--medal-silver-bg,#46576a);color:var(--medal-silver-text,#f4f8ff)}
+#settingsDialog .medal-preview[data-style="row"]>[data-medal-preview="bronze"]{background:var(--medal-bronze-bg,#6c4934);color:var(--medal-bronze-text,#fff1dc)}
+#settingsDialog .medal-preview[data-style="place"]>[data-medal-preview="gold"] span:first-child,#settingsDialog .medal-preview[data-style="place"]>[data-medal-preview="silver"] span:first-child,#settingsDialog .medal-preview[data-style="place"]>[data-medal-preview="bronze"] span:first-child{font-weight:900}
+#settingsDialog .medal-preview[data-style="place"]>[data-medal-preview="gold"] .medal-place{color:var(--medal-gold-bg,#735217)}
+#settingsDialog .medal-preview[data-style="place"]>[data-medal-preview="silver"] .medal-place{color:var(--medal-silver-bg,#46576a)}
+#settingsDialog .medal-preview[data-style="place"]>[data-medal-preview="bronze"] .medal-place{color:var(--medal-bronze-bg,#6c4934)}
+#settingsDialog .medal-preview[data-style="marker"]>[data-medal-preview="gold"]::before,#settingsDialog .medal-preview[data-style="marker"]>[data-medal-preview="silver"]::before,#settingsDialog .medal-preview[data-style="marker"]>[data-medal-preview="bronze"]::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px}
+#settingsDialog .medal-preview[data-style="marker"]>[data-medal-preview="gold"]::before{background:var(--medal-gold-bg,#735217)}
+#settingsDialog .medal-preview[data-style="marker"]>[data-medal-preview="silver"]::before{background:var(--medal-silver-bg,#46576a)}
+#settingsDialog .medal-preview[data-style="marker"]>[data-medal-preview="bronze"]::before{background:var(--medal-bronze-bg,#6c4934)}
+#settingsDialog .medal-preview[data-style="marker"] .medal-place{font-weight:900}
+#settingsDialog .medal-preview[data-style="marker"]>[data-medal-preview="gold"] .medal-place{color:var(--medal-gold-bg,#735217)}
+#settingsDialog .medal-preview[data-style="marker"]>[data-medal-preview="silver"] .medal-place{color:var(--medal-silver-bg,#46576a)}
+#settingsDialog .medal-preview[data-style="marker"]>[data-medal-preview="bronze"] .medal-place{color:var(--medal-bronze-bg,#6c4934)}
+#settingsDialog .medal-preview[data-style="dot"] .medal-place{position:relative;padding-left:.7em;font-weight:900}
+#settingsDialog .medal-preview[data-style="dot"] .medal-place::before{content:"";position:absolute;left:0;top:50%;width:.32em;height:.32em;border-radius:999px;transform:translateY(-50%)}
+#settingsDialog .medal-preview[data-style="dot"]>[data-medal-preview="gold"] .medal-place{color:var(--medal-gold-bg,#735217)}
+#settingsDialog .medal-preview[data-style="dot"]>[data-medal-preview="silver"] .medal-place{color:var(--medal-silver-bg,#46576a)}
+#settingsDialog .medal-preview[data-style="dot"]>[data-medal-preview="bronze"] .medal-place{color:var(--medal-bronze-bg,#6c4934)}
+#settingsDialog .medal-preview[data-style="dot"]>[data-medal-preview="gold"] .medal-place::before{background:var(--medal-gold-bg,#735217)}
+#settingsDialog .medal-preview[data-style="dot"]>[data-medal-preview="silver"] .medal-place::before{background:var(--medal-silver-bg,#46576a)}
+#settingsDialog .medal-preview[data-style="dot"]>[data-medal-preview="bronze"] .medal-place::before{background:var(--medal-bronze-bg,#6c4934)}
+#settingsDialog .medal-preview[data-style="column"]>[data-medal-preview] .medal-place{display:inline-flex;align-items:center;justify-content:center;min-width:2.2em;padding:.15em .45em;border-radius:6px;font-weight:900}
+#settingsDialog .medal-preview[data-style="column"]>[data-medal-preview="gold"] .medal-place{background:var(--medal-gold-bg,#735217);color:var(--medal-gold-text,#fff3be)}
+#settingsDialog .medal-preview[data-style="column"]>[data-medal-preview="silver"] .medal-place{background:var(--medal-silver-bg,#46576a);color:var(--medal-silver-text,#f4f8ff)}
+#settingsDialog .medal-preview[data-style="column"]>[data-medal-preview="bronze"] .medal-place{background:var(--medal-bronze-bg,#6c4934);color:var(--medal-bronze-text,#fff1dc)}
+@media(max-width:760px){#settingsDialog .medal-style-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#settingsDialog .medal-preset-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){#settingsDialog .mode-options{grid-template-columns:1fr}#settingsDialog .mode-choice{padding:8px 10px}#settingsDialog .medal-config-grid{grid-template-columns:1fr 1fr 1fr}#settingsDialog .medal-config{padding:5px}#settingsDialog .medal-name{font-size:10px}}
+.signature .mono-paws,.sizes-preview-footer .mono-paws{width:1.9em;height:1em;display:inline-block;vertical-align:-.12em;fill:currentColor;color:inherit;flex:none}
+
+/* V7.3: mantener PISTA en raya hasta registrar una llegada en orden de llegada. */
+/* V7.2: alineación estricta por fila en orden de llegada.
+   PISTA / LLEGADA / TIEMPO se mantienen en una sola línea visual. */
+.screen-board[data-row-order="arrival"] .lane-row{align-items:center;grid-auto-flow:column}
+.screen-board[data-row-order="arrival"] .lane-row .lane-id,
+.screen-board[data-row-order="arrival"] .lane-row .place-col{line-height:1;align-self:center;min-height:0;display:flex;align-items:center;justify-content:flex-start;white-space:nowrap}
+.screen-board[data-row-order="arrival"] .lane-row .place-col{justify-content:center}
+.screen-board[data-row-order="arrival"][data-podium-style="column"] .lane-row.podium-1 .place-col,
+.screen-board[data-row-order="arrival"][data-podium-style="column"] .lane-row.podium-2 .place-col,
+.screen-board[data-row-order="arrival"][data-podium-style="column"] .lane-row.podium-3 .place-col{align-self:stretch}
+.screen-board[data-row-order="arrival"] .lane-row .time-col{align-self:center}
+
+
+/* V7.5: altura fija y uniforme de SVG, proporcional al alto útil del tablero.
+   Evita el dimensionamiento circular entre SVG height:100% y celda grid auto. */
+.lane-row .time-col.clock-svg{
+  height:calc(var(--bh,7px) * 7.75);
+  max-height:calc(var(--bh,7px) * 7.75);
+  min-height:0;
+  align-self:center;
+  padding:0;
+  overflow:hidden;
+}
+.lane-row .time-col.clock-svg .dragon-seven-svg{
+  display:block;
+  flex:0 1 auto;
+  width:min(100%,calc(100% * var(--sz-clock,1)));
+  height:min(100%,calc(100% * var(--sz-clock,1)));
+  max-height:100%;
+}
+
+
+/* V7.8 — Podio: casilla de llegada correctamente acotada y centrada.
+   No usar el tamaño de los números para definir el ancho del fondo. */
+.screen-board[data-podium-style="column"] .lane-row.podium-1 .place-col,
+.screen-board[data-podium-style="column"] .lane-row.podium-2 .place-col,
+.screen-board[data-podium-style="column"] .lane-row.podium-3 .place-col,
+.screen-board[data-row-order="arrival"][data-podium-style="column"] .lane-row.podium-1 .place-col,
+.screen-board[data-row-order="arrival"][data-podium-style="column"] .lane-row.podium-2 .place-col,
+.screen-board[data-row-order="arrival"][data-podium-style="column"] .lane-row.podium-3 .place-col {
+  justify-self:center;
+  align-self:center;
+  width:min(100%, clamp(62px, 12vw, 196px));
+  min-width:0;
+  height:calc(100% - 10px);
+  max-height:calc(100% - 10px);
+  margin:0;
+  padding:0 5px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  border-radius:8px;
+  white-space:nowrap;
+  overflow:hidden;
+  line-height:1;
+}
+/* Las muestras antes excedían el ancho de cada tarjeta (cinco por fila).
+   El área de LLEGADA ahora tiene su propia celda sin cortar el número. */
+#settingsDialog .medal-style-card{min-width:0;overflow:hidden}
+#settingsDialog .medal-style-card .medal-style-demo{
+  grid-template-columns:14px minmax(0,1fr) 29px;
+  gap:3px;
+  padding:6px 4px;
+  min-width:0;
+  overflow:hidden;
+  width:100%;
+}
+#settingsDialog .medal-style-card .medal-style-demo > span:nth-child(2){
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  min-width:0;
+  font-size:8px;
+}
+#settingsDialog .medal-style-card .medal-style-demo > span:last-child{display:none}
+#settingsDialog .medal-style-card .medal-style-demo .demo-place{
+  grid-column:3;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  text-align:center;
+  justify-self:stretch;
+  overflow:visible;
+}
+#settingsDialog .medal-style-card[data-style="column"] .medal-style-demo .demo-place{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:0;
+  padding:2px 0;
+  box-sizing:border-box;
+  border-radius:4px;
+}
+#settingsDialog .medal-style-card small{font-size:10px;line-height:1.25;overflow-wrap:anywhere}
+@media(max-width:760px){
+  #settingsDialog .medal-style-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+
+/* V7.10 - ventanas divididas y proyección realmente responsive.
+   Nunca mostrar columnas fantasma al ocultar NADADOR/CLUB. */
+body.board-compact .screen-board .lane-grid{
+  grid-template-columns:var(--board-cols-compact)!important;
+  grid-auto-flow:row!important;
+  grid-auto-columns:initial!important;
+  column-gap:clamp(3px,calc(var(--bw,6px)*.9),9px);
+  padding-left:clamp(5px,calc(var(--bw,6px)*1.3),14px);
+  padding-right:clamp(5px,calc(var(--bw,6px)*1.3),14px);
+}
+/* La visibilidad de la columna NADADOR pertenece a la configuración,
+   no a las antiguas media queries que la forzaban con !important. */
+body.board-compact .lane-row .swimmer-col[style*="display:none"]{display:none!important}
+body.board-compact:not(.has-names) .lane-row .swimmer-col{display:none!important}
+body.board-compact:not(.has-names) .column-head .head-person{display:none!important}
+body.board-compact.has-names .lane-row .swimmer-col{display:block!important}
+body.board-compact.has-names .column-head .head-person{display:block!important}
+body.board-compact.has-names .lane-row .club-col,
+body.board-compact.has-names .column-head .head-club{display:none!important}
+body.board-compact:not(.has-names) .lane-row .club-col,
+body.board-compact:not(.has-names) .column-head .head-club{display:block!important}
+body.board-compact .lane-row .time-col{min-width:0;max-width:100%;overflow:hidden}
+body.board-compact .lane-row .time-col.clock-svg{width:100%;max-width:100%;align-self:center}
+body.board-compact .lane-row .time-col.clock-svg .dragon-seven-svg{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;overflow:hidden}
+body.board-compact .column-head .head-time{min-width:0}
+body.board-compact .lane-row .place-col{min-width:0}
+body.board-compact .lane-row .control-col{min-width:0;max-width:100%}
+body.display-only.board-compact .screen-board .lane-grid{grid-template-columns:var(--board-cols-compact)!important}
+/* Encabezados y filas conservan exactamente el mismo esquema de columnas. */
+body.board-compact .screen-board[data-row-order="arrival"] .lane-row{grid-auto-flow:row!important}
+
+/* V7.13: centrar encabezados y contenido SVG usando la misma coordenada central de su columna */
+.column-head .head-lane,.column-head .head-person,.column-head .head-club,.column-head .head-place,.column-head .head-time{display:block;width:100%;text-align:center!important}
+.lane-row .lane-id,.lane-row .swimmer-col,.lane-row .club-col,.lane-row .place-col,.lane-row .time-col{align-self:center}
+.lane-row .lane-id{width:100%;text-align:center}
+.lane-row .swimmer-col{width:100%;text-align:center;justify-self:stretch}
+.lane-row .swimmer-name,.lane-row .swimmer-mini{text-align:center}
+.lane-row .club-col{width:100%;text-align:center;justify-self:stretch}
+.lane-row .place-col{width:100%;text-align:center;justify-self:stretch;justify-content:center}
+.lane-row .time-col{width:100%;text-align:center!important;justify-self:stretch}
+.lane-row .time-col.clock-svg{justify-content:center!important}
+
+/* V7.14 — Centrado efectivo de PISTA y colores exclusivos del podio.
+   El modo "Por orden de llegada" usaba justify-content:flex-start,
+   por eso los números no coincidían con su encabezado. */
+.screen-board[data-row-order="arrival"] .lane-row .lane-id {
+  justify-self:stretch;
+  justify-content:center!important;
+  text-align:center!important;
+}
+/* Sin medalla: color de texto neutro, no el color alterno de la fila.
+   Los puestos 1° a 3° conservan el estilo de podio seleccionado y DQ su aviso. */
+.screen-board .lane-row:not(.dq):not(.podium-1):not(.podium-2):not(.podium-3) .place-col {
+  color:var(--text)!important;
+}
+
+/* V7.15 · Barra de operación compacta, clara y adaptativa */
+/* Notificaciones secundarias lejos de la última pista */
+.toast{top:81px;bottom:auto;left:auto;right:22px;transform:none;max-width:min(370px,calc(100vw - 30px))}
+@media(max-width:700px){.toast{top:110px;right:9px}}
+.operator-toolbar{
+  flex-wrap:wrap;gap:9px 14px;padding:9px 13px;min-height:62px;
+  background:linear-gradient(180deg,#12283d 0%,#0d1f32 100%);
+  border:1px solid rgba(147,185,216,.21);border-radius:14px;
+  box-shadow:0 6px 20px rgba(0,0,0,.15),inset 0 1px rgba(255,255,255,.035)
+}
+.toolbar-left{display:flex;align-items:center;flex:none;margin-right:auto;gap:0}
+.toolbar-right{display:flex;align-items:center;flex-wrap:wrap;gap:7px;justify-content:flex-end}
+.status-chip{
+  display:inline-flex;align-items:center;gap:8px;padding:9px 12px;
+  background:rgba(10,30,47,.8);border:1px solid rgba(126,176,208,.25);
+  border-radius:9px;color:#a8d4f4;font-size:11px;letter-spacing:.06em;font-weight:850
+}
+.status-chip::before{content:"";width:7px;height:7px;border-radius:50%;background:#6ac9ef;box-shadow:0 0 0 3px rgba(106,201,239,.11)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:41px;border-radius:9px;padding:9px 13px;
+  font:700 13px/1.2 "Segoe UI",Arial,sans-serif;
+  background:linear-gradient(180deg,#213a54,#1a3048);
+  color:#eaf5ff;border:1px solid #38536a;
+  box-shadow:inset 0 1px rgba(255,255,255,.06);
+  transition:background .12s,border-color .12s,box-shadow .12s;
+}
+.btn:hover:not(:disabled){background:#2a4762;border-color:#6687a2;filter:none}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{opacity:.42}
+.tool-icon{width:16px;height:16px;display:block;flex:none}
+.btn-primary{background:linear-gradient(180deg,#ffe078,#ffd04c);color:#172434;border-color:#f2c557;box-shadow:inset 0 1px rgba(255,255,255,.55)}
+.btn-primary:hover:not(:disabled){background:#ffe389;border-color:#f9d66a}
+.btn-shortcut{font:700 10px/1.2 "Segoe UI",Arial,sans-serif;border:1px solid rgba(26,40,54,.22);background:rgba(255,255,255,.28);padding:3px 5px;border-radius:4px;color:#35465a}
+.btn-next{border-color:#4b6680}
+.btn-danger{background:rgba(190,65,79,.09);border-color:rgba(231,107,120,.32);color:#ff8991}
+.btn-danger:hover:not(:disabled){background:rgba(190,65,79,.2);border-color:#d36b78}
+.btn-reset-event{color:#c4dbef}
+.btn-project{color:#94e5de;border-color:rgba(88,175,170,.35)}
+.btn-project:hover:not(:disabled){background:rgba(46,102,111,.38);border-color:#5ebdb9}
+.btn-settings{width:41px;min-width:41px;padding:0}
+@media(max-width:750px){
+  .operator-toolbar{padding:7px 9px;gap:7px;min-height:0}
+  .toolbar-left{margin-right:0}
+  .toolbar-right{gap:5px;justify-content:flex-start}
+  .btn{min-height:37px;padding:7px 9px;font-size:12px;gap:5px}
+  .tool-icon{width:14px;height:14px}
+  .btn-shortcut{font-size:9px;padding:2px 4px}
+  .btn-settings{width:37px;min-width:37px}
+}
+@media(max-width:430px){
+  .status-chip{font-size:10px;padding:7px 9px}
+  .btn{padding:6px 7px;font-size:11px}
+  .btn-shortcut{display:none}
+}
+
+/* V7.16 · Botón unificado de inicio y estado de carrera */
+.toolbar-left{margin-right:auto}
+.btn.race-control{
+  min-height:48px;min-width:166px;max-width:220px;
+  padding:7px 14px;gap:11px;justify-content:flex-start;
+  border-radius:11px;flex-shrink:0;
+  transition:background-color .16s,border-color .16s,box-shadow .16s;
+  box-shadow:inset 0 1px rgba(255,255,255,.18),0 3px 12px rgba(0,0,0,.13)
+}
+.race-labels{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:1px;line-height:1.13}
+.race-state{font-weight:900;letter-spacing:.085em;font-size:9px;white-space:nowrap}
+.race-action{font-weight:850;font-size:14px;white-space:nowrap}
+.race-indicator{width:23px;height:23px;flex:none;position:relative;display:grid;place-items:center}
+.race-control[data-phase="ready"]{background:linear-gradient(180deg,#a8e99e,#77d486);border-color:#7aca83;color:#0c2b1b}
+.race-control[data-phase="ready"]:hover:not(:disabled){background:linear-gradient(180deg,#b9f4ac,#8de79a);border-color:#a0eda4}
+.race-control[data-phase="ready"] .race-indicator:before{content:"";display:block;width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:14px solid currentColor;margin-left:4px}
+.race-control[data-phase="running"]{background:linear-gradient(180deg,#ffd46b,#f5b944);border-color:#d9a744;color:#3b2810}
+.race-control[data-phase="running"] .race-indicator:before{content:"";width:13px;height:13px;background:#a95714;border-radius:50%;box-shadow:0 0 0 5px rgba(166,88,20,.13)}
+.race-control[data-phase="finished"]{background:linear-gradient(180deg,#7ecaf6,#4bafe9);border-color:#448cbb;color:#102e48}
+.race-control[data-phase="finished"] .race-indicator:before{content:"";display:block;width:13px;height:8px;border-left:4px solid currentColor;border-bottom:4px solid currentColor;transform:rotate(-45deg) translate(1px,-2px)}
+.btn.race-control:disabled{opacity:1;cursor:default;filter:none}
+.btn.race-control[data-phase="ready"]:disabled{background:linear-gradient(180deg,#9eaebb,#8397a7);border-color:#879daf;color:#203747}
+.btn.race-control:active:not(:disabled){transform:translateY(1px)}
+/* Los tres comandos de navegación no deben parecer disponibles mientras se cronometra. */
+.toolbar-right .btn:disabled{opacity:.34;color:#c3d2df;background:#142537;border-color:#354759;box-shadow:none;cursor:not-allowed;filter:none}
+@media(max-width:750px){.btn.race-control{min-height:42px;min-width:145px;padding:6px 11px;gap:8px}.race-indicator{width:20px;height:20px}.race-action{font-size:12px}.race-state{font-size:8px}}
+@media(max-width:430px){.btn.race-control{min-width:134px}}
+
+/* V7.17: presentación en mayúsculas sin modificar datos ni exportaciones. */
+.screen-board .swimmer-name,.screen-board .swimmer-mini,.screen-board .club-col{text-transform:uppercase}
+/* Editor de atajos integrado en Configuración. */
+#settingsDialog .shortcut-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+#settingsDialog .shortcut-top h3{margin:0}
+#settingsDialog .shortcut-group{margin:13px 0 0;border:1px solid #c8d8e6;border-radius:8px;background:#fff;overflow:hidden}
+#settingsDialog .shortcut-group-title{margin:0;background:#e7eff7;color:#244a69;padding:9px 12px;font-size:12px;font-weight:800}
+#settingsDialog .shortcut-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 10px;padding:3px 10px}
+#settingsDialog .shortcut-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(80px,125px) 27px;gap:5px;align-items:center;min-height:43px;padding:5px 0;border-bottom:1px solid #edf2f7;min-width:0}
+#settingsDialog .shortcut-name{font-size:12px;font-weight:700;color:#254560;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#settingsDialog .shortcut-bind{background:#f8fbff;border:1px solid #aebfd0;border-radius:6px;padding:7px 6px;min-width:0;min-height:32px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;font-weight:750;color:#124c73;cursor:pointer}
+#settingsDialog .shortcut-bind:hover{background:#e8f4fc;border-color:#167bbb}
+#settingsDialog .shortcut-bind.is-listening{background:#fff5da;border-color:#c58f10;box-shadow:0 0 0 2px #ffe39a;color:#704900}
+#settingsDialog .shortcut-clear{padding:0;min-height:30px;width:27px;background:transparent;border:1px solid #d4dee8;border-radius:6px;color:#6a7d90;cursor:pointer;font-size:16px}
+#settingsDialog .shortcut-clear:hover{color:#ac303f;border-color:#ddaab2}
+#settingsDialog .shortcut-hint{color:#5c7389;font-size:12px;line-height:1.45;margin:10px 0}
+#settingsDialog .shortcut-feedback{font-size:12px;font-weight:700;color:#a43138;min-height:18px;margin:6px 0}
+@media(max-width:690px){#settingsDialog .shortcut-grid{grid-template-columns:1fr}#settingsDialog .shortcut-row{grid-template-columns:minmax(0,1fr) 128px 27px}}
+@media(max-width:390px){#settingsDialog .shortcut-row{grid-template-columns:minmax(0,1fr) 95px 26px}}
+
+/* V7.19 · Cuatro grupos claros, subpestañas visibles y navegación sin desplazamiento lateral */
+#settingsDialog{width:min(810px,calc(100vw - 24px));height:min(536px,calc(100dvh - 20px))}
+#settingsDialog .settings-layout{grid-template-columns:175px minmax(0,1fr)}
+#settingsDialog .settings-nav{padding:15px 9px;gap:7px;overflow:hidden;justify-content:flex-start}
+#settingsDialog .settings-tab{display:flex;gap:10px;align-items:center;min-height:58px;padding:10px 9px;border-radius:9px;white-space:normal}
+#settingsDialog .settings-tab.active{box-shadow:inset 3px 0 #167fc3,0 1px 2px #7891aa22}
+#settingsDialog .settings-group-icon{flex:none;display:grid;place-items:center;width:25px;height:25px;color:#397393;font:700 18px Consolas,monospace}
+#settingsDialog .settings-tab.active .settings-group-icon{color:#057bb7}
+#settingsDialog .settings-group-name{min-width:0;display:flex;flex-direction:column;gap:3px;line-height:1.13}
+#settingsDialog .settings-group-name strong{font-size:13px;font-weight:750;white-space:nowrap}
+#settingsDialog .settings-group-name small{font-size:10px;font-weight:500;color:#6b7f91;white-space:nowrap}
+#settingsDialog .settings-content{display:grid;grid-template-rows:45px minmax(0,1fr);min-height:0;overflow:hidden}
+#settingsDialog .settings-subtabs{min-width:0;display:flex;align-items:center;gap:5px;padding:7px 14px;background:#f0f5fa;border-bottom:1px solid #d1dfe9;overflow-x:auto;scrollbar-width:thin}
+#settingsDialog .settings-subtab{border:1px solid transparent;background:transparent;border-radius:7px;padding:7px 12px;color:#436178;white-space:nowrap;font:650 12px "Segoe UI",Arial,sans-serif;cursor:pointer;min-height:30px}
+#settingsDialog .settings-subtab:hover:not(.active){background:#dce7f1}
+#settingsDialog .settings-subtab.active{background:#fff;color:#096aab;border-color:#aec7dd;box-shadow:0 1px 3px #1b507422}
+#settingsDialog .settings-subtab:focus-visible{outline:2px solid #167fc3;outline-offset:1px}
+#settingsDialog .settings-pages{min-height:0;overflow:hidden}
+#settingsDialog .settings-pages>.cfg-page{height:100%;overflow:auto;overscroll-behavior:contain;padding:14px 19px 20px}
+#settingsDialog .settings-pages>.cfg-page h3{font-size:15px;margin-bottom:11px}
+@media(max-width:680px){
+ #settingsDialog{width:calc(100vw - 12px);height:min(650px,calc(100dvh - 12px))}
+ #settingsDialog .settings-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:52px minmax(0,1fr)}
+ #settingsDialog .settings-nav{flex-direction:row;justify-content:space-around;gap:2px;padding:5px;overflow:hidden}
+ #settingsDialog .settings-tab{min-width:0;flex:1;min-height:40px;padding:5px 4px;justify-content:center;gap:3px;flex-direction:column;border-radius:7px}
+ #settingsDialog .settings-group-icon{display:none}
+ #settingsDialog .settings-group-name strong{font-size:11px}
+ #settingsDialog .settings-group-name small{display:none}
+ #settingsDialog .settings-tab.active{box-shadow:inset 0 -3px #167fc3}
+ #settingsDialog .settings-content{grid-template-rows:43px minmax(0,1fr)}
+ #settingsDialog .settings-subtabs{padding:5px 7px;gap:3px}
+ #settingsDialog .settings-subtab{padding:6px 9px;font-size:11px}
+ #settingsDialog .settings-pages>.cfg-page{padding:12px 12px 16px}
+}
+@media(max-width:390px){#settingsDialog .settings-group-name strong{font-size:10px}#settingsDialog .settings-subtab{padding:6px 7px}}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <header class="operator-toolbar" id="operatorToolbar">
+    <div class="toolbar-left">
+      <button id="startBtn" class="btn race-control" type="button" data-phase="ready" title="Iniciar la serie" aria-label="Preparado. Iniciar carrera">
+        <span class="race-indicator" aria-hidden="true"></span>
+        <span class="race-labels"><span id="raceState" class="race-state" aria-live="polite">PREPARADO</span><span id="raceAction" class="race-action">Iniciar carrera</span></span>
+      </button>
+    </div>
+    <div class="toolbar-right">
+      <button id="nextBtn" class="btn btn-next" type="button" title="Avanzar a la siguiente serie"><span>Avanzar</span><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
+      <button id="resetBtn" class="btn btn-danger" type="button" title="Repetir esta serie"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11a9 9 0 1 1 2.9 6.5"/><path d="M3 4v7h7"/></svg><span>Repetir</span></button>
+      <button id="restartCompetitionBtn" class="btn btn-reset-event" type="button" title="Volver al primer Event y Heat"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg><span>Event 1</span></button>
+      <button id="projectBtn" class="btn btn-project" type="button" title="Abrir en la segunda pantalla"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span>Pantalla</span></button>
+      <button id="settingsBtn" class="btn btn-settings" type="button" title="Configuración" aria-label="Configuración"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2 2-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1 1.55V21h-2.8v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06-2-2 .06-.06A1.7 1.7 0 0 0 7.52 15 1.7 1.7 0 0 0 6 14H5v-2.8h1a1.7 1.7 0 0 0 1.52-1 1.7 1.7 0 0 0-.34-1.88l-.06-.06 2-2 .06.06a1.7 1.7 0 0 0 1.88.34 1.7 1.7 0 0 0 1-1.55V4h2.8v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.88-.34l.06-.06 2 2-.06.06A1.7 1.7 0 0 0 19.4 10a1.7 1.7 0 0 0 1.55 1H21v2.8h-.09A1.7 1.7 0 0 0 19.4 15Z"/></svg></button>
+    </div>
+  </header>
+  <main class="screen-board" id="board" aria-label="Tablero de cronometraje">
+    <header class="board-top">
+      <img id="clubLogo" class="club-logo" alt="Logo del club">
+      <div class="board-headings"><div id="boardTitle" class="event-title">NATACIÓN</div><div id="boardSubtitle" class="event-subtitle"></div></div>
+      <div class="event-numbering" id="eventNumbering">
+        <div id="eventTile" class="number-tile"><div class="number-label">EVENT</div><div id="eventValue" class="number-value">1</div></div>
+        <div id="heatTile" class="number-tile"><div class="number-label">HEAT</div><div id="heatValue" class="number-value">1</div></div>
+      </div>
+    </header>
+    <div id="columnHead" class="column-head lane-grid"></div>
+    <div id="laneRows" class="lane-rows"></div>
+    <footer class="board-footer"><span id="boardMessage" class="board-message"></span><span class="signature">Por Gato Plaza <svg class="mono-paws" viewBox="0 0 55 28" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dos patitas de gato"><g transform="translate(0 6) scale(.33)"><ellipse cx="12" cy="20" rx="6" ry="9" transform="rotate(-22 12 20)"/><ellipse cx="25" cy="11" rx="6" ry="9" transform="rotate(-8 25 11)"/><ellipse cx="41" cy="12" rx="6" ry="9" transform="rotate(8 41 12)"/><ellipse cx="54" cy="23" rx="6" ry="9" transform="rotate(22 54 23)"/><path d="M31 27c-8 0-10 9-17 16-5 5-2 15 5 17 6 2 9-3 15-3s9 6 16 3c8-3 8-12 2-17-8-7-11-16-21-16Z"/></g><g transform="translate(27 0) scale(.33)"><ellipse cx="12" cy="20" rx="6" ry="9" transform="rotate(-22 12 20)"/><ellipse cx="25" cy="11" rx="6" ry="9" transform="rotate(-8 25 11)"/><ellipse cx="41" cy="12" rx="6" ry="9" transform="rotate(8 41 12)"/><ellipse cx="54" cy="23" rx="6" ry="9" transform="rotate(22 54 23)"/><path d="M31 27c-8 0-10 9-17 16-5 5-2 15 5 17 6 2 9-3 15-3s9 6 16 3c8-3 8-12 2-17-8-7-11-16-21-16Z"/></g></svg></span></footer>
+  </main>
+</div>
+<dialog id="settingsDialog" aria-label="Configuración del tablero">
+  <form id="settingsForm" method="dialog" class="win-dialog">
+    <div class="dialog-top">
+      <div class="dialog-caption"><span class="dialog-app-icon">⚙</span><h2>Configuración del tablero</h2></div>
+      <button class="close-icon" id="closeSettings" type="button" aria-label="Cerrar">×</button>
+    </div>
+    <div class="settings-layout">
+      <nav class="settings-nav" id="settingsTabs" aria-label="Grupos de configuración" role="tablist" aria-orientation="vertical">
+        <button type="button" class="settings-tab active" data-group="competition" role="tab" aria-selected="true"><span class="settings-group-icon">▤</span><span class="settings-group-name"><strong>Competencia</strong><small>Pruebas y nadadores</small></span></button>
+        <button type="button" class="settings-tab" data-group="display" role="tab" aria-selected="false"><span class="settings-group-icon">▣</span><span class="settings-group-name"><strong>Visualización</strong><small>Pantalla y modos</small></span></button>
+        <button type="button" class="settings-tab" data-group="design" role="tab" aria-selected="false"><span class="settings-group-icon">◉</span><span class="settings-group-name"><strong>Diseño</strong><small>Colores y letras</small></span></button>
+        <button type="button" class="settings-tab" data-group="tools" role="tab" aria-selected="false"><span class="settings-group-icon">⌨</span><span class="settings-group-name"><strong>Herramientas</strong><small>Atajos y resultados</small></span></button>
+      </nav>
+      <div class="settings-content">
+        <nav id="settingsSubtabs" class="settings-subtabs" role="tablist" aria-label="Opciones del grupo"></nav>
+        <div class="settings-pages">
+        <section class="cfg-page" data-panel="competition" role="tabpanel">
+          <h3>Competencia</h3>
+          <div class="field-grid two">
+            <div class="field"><label for="cfgTitle">Título</label><input id="cfgTitle" maxlength="75" placeholder="Natación"></div>
+            <div class="field"><label for="cfgEvent">Event actual</label><input id="cfgEvent" type="number" min="1" max="9999" step="1"></div>
+          </div>
+          <div class="field-grid two" style="margin-top:11px">
+            <div class="field"><label for="cfgTrial">Subtítulo · Prueba olímpica</label><select id="cfgTrial"></select></div>
+            <div class="field"><label for="cfgSex">Categoría</label><select id="cfgSex"><option value="Damas">Damas</option><option value="Varones">Varones</option><option value="Mixto">Mixto</option></select></div>
+          </div>
+          <div class="row-inline" style="justify-content:space-between;margin-top:7px"><span id="eventPreview" class="event-preview"></span><button type="button" class="cfg-btn" id="goProgram" title="Editar el programa completo">☷ Programa de Events</button></div>
+          <div class="field-grid" style="margin-top:11px">
+            <div class="field"><label for="cfgHeat">Heat actual</label><input id="cfgHeat" type="number" min="1" max="999" step="1"></div>
+            <div class="field"><label for="cfgMaxHeats">Heats de este Event</label><input id="cfgMaxHeats" type="number" min="1" max="999" step="1"></div>
+            <div class="field"><label for="cfgDelay">Mostrar resultados (s)</label><input id="cfgDelay" type="number" min="3" max="120" step="1"></div>
+          </div>
+          <div class="mini-group auto-advance-group"><label class="toggle"><input id="cfgAutoAdvance" type="checkbox"><strong>Paso automático</strong> al siguiente Heat / Event</label><span class="small-info">Desactivado: los resultados permanecen hasta pulsar «Avanzar».</span></div>
+        </section>
+        <section class="cfg-page" data-panel="program" role="tabpanel" hidden>
+          <div class="section-top"><h3>Programa de pruebas por Event</h3><button class="cfg-btn primary" id="addProgramEvent" type="button">＋ Añadir Event</button></div>
+          <p class="small-info program-info">Cada Event tiene su prueba, categoría y número de Heats. Se cambia automáticamente al avanzar.</p>
+          <div class="event-program-head"><span>Event</span><span>Prueba olímpica</span><span>Categoría</span><span>Heats</span><span></span></div>
+          <div class="event-program-list" id="programList"></div>
+        </section>
+        <section class="cfg-page" data-panel="screen" role="tabpanel" hidden>
+          <h3>Pantalla y proyección</h3>
+          <div class="mini-group">
+            <div class="mini-group-label">Mostrar en el tablero</div>
+            <div class="toggles compact-toggles">
+              <label class="toggle"><input id="cfgShowEvent" type="checkbox"> Event</label>
+              <label class="toggle"><input id="cfgShowHeat" type="checkbox"> Heat</label>
+              <label class="toggle"><input id="cfgNames" type="checkbox"> Nombres</label>
+              <label class="toggle"><input id="cfgClubs" type="checkbox"> Clubes</label>
+              <label class="toggle"><input id="cfgCountries" type="checkbox"> Nacionalidades</label>
+            </div>
+          </div>
+
+          <div class="field-grid two">
+            <div class="field"><label for="cfgAspect">Relación de aspecto</label><select id="cfgAspect">
+              <option value="auto">Automática · llenar pantalla</option>
+              <option value="16:9">16:9 · panorámica</option>
+              <option value="16:10">16:10 · monitor</option>
+              <option value="4:3">4:3 · proyector clásico</option>
+              <option value="21:9">21:9 · ultrapanorámica</option>
+              <option value="9:16">9:16 · vertical</option>
+            </select></div>
+            <div class="field"><label for="cfgSafe">Margen de seguridad</label><select id="cfgSafe">
+              <option value="0">Sin margen</option><option value="2">2 %</option><option value="4">4 %</option>
+            </select></div>
+          </div>
+          <div class="mini-group"><label class="toggle"><input id="cfgTouch" type="checkbox"> Mostrar botones táctiles en las pistas</label></div>
+          <p class="small-info">En automático se ajustan las 8 pistas a la pantalla disponible, sin scroll. En el proyector solo aparece el tablero.</p>
+        </section>
+        <section class="cfg-page" data-panel="modes" role="tabpanel" hidden>
+          <h3>Modo de visualización</h3>
+          <fieldset class="mode-set">
+            <legend>Cronómetros</legend>
+            <div class="mode-options">
+              <label class="mode-choice"><input type="radio" name="clockMode" value="live" checked><span><strong>Todos en vivo</strong><small>Los 8 tiempos avanzan juntos desde la salida.</small><span class="mode-demo">01:18.45 · 01:18.45 · 01:18.45</span></span></label>
+              <label class="mode-choice"><input type="radio" name="clockMode" value="final"><span><strong>Solo tiempos finales</strong><small>El tiempo aparece únicamente al detener cada pista.</small><span class="mode-demo">— · 01:18.45 · —</span></span></label>
+            </div>
+          </fieldset>
+          <fieldset class="mode-set">
+            <legend>Orden de las filas</legend>
+            <div class="mode-options">
+              <label class="mode-choice"><input type="radio" name="rowOrder" value="lane" checked><span><strong>Por número de pista</strong><small>Orden fijo, pistas 1 a 8.</small><span class="mode-demo">1 · 2 · 3 · 4 ...</span></span></label>
+              <label class="mode-choice"><input type="radio" name="rowOrder" value="arrival"><span><strong>Por orden de llegada</strong><small>Cada fila mantiene juntos el número de pista, su lugar y su tiempo. Los que finalizan aparecen primero.</small><span class="mode-demo">3 (1°) · 4 (2°) · 1 (3°) ...</span></span></label>
+            </div>
+          </fieldset>
+          <p class="small-info">La tecla 1–8 siempre detiene su pista original, aunque las filas cambien de posición. Las descalificaciones quedan al final. Los tiempos iguales a la centésima comparten puesto (1°, 1°, 3°), como en natación olímpica.</p>
+        </section>
+        <section class="cfg-page" data-panel="colors" role="tabpanel" hidden>
+          <h3>Estilos predeterminados</h3>
+          <div class="preset-grid" id="colorPresetGrid" aria-label="Elegir combinación de colores"></div>
+          <div class="palette-preview" id="palettePreview" aria-label="Vista previa de colores"><div id="paletteSampleTop" class="palette-preview-top">NATACIÓN · EVENT 1</div><div id="paletteSampleOdd" class="palette-preview-row"><span>1 · NADADOR</span><span>01:23.45</span></div><div id="paletteSampleEven" class="palette-preview-row"><span>2 · NADADOR</span><span>01:24.18</span></div></div>
+          <div class="color-controls-caption"><span>Personalizar colores</span><span>Al cambiar un color se activa «Personalizado»</span></div>
+          <div class="color-grid">
+            <div class="color-field"><label for="cfgOddBg">Carril impar · fondo</label><input id="cfgOddBg" type="color"></div>
+            <div class="color-field"><label for="cfgOddText">Carril impar · texto</label><input id="cfgOddText" type="color"></div>
+            <div class="color-field"><label for="cfgAlternate">Carril par · fondo</label><input id="cfgAlternate" type="color"></div>
+            <div class="color-field"><label for="cfgEvenText">Carril par · texto</label><input id="cfgEvenText" type="color"></div>
+            <div class="color-field"><label for="cfgBg">Fondo general</label><input id="cfgBg" type="color"></div>
+            <div class="color-field"><label for="cfgText">Texto general</label><input id="cfgText" type="color"></div>
+            <div class="color-field"><label for="cfgColumns">Encabezados</label><input id="cfgColumns" type="color"></div>
+            <div class="color-field"><label for="cfgTitleColor">Título</label><input id="cfgTitleColor" type="color"></div>
+            <div class="color-field"><label for="cfgSubtitleColor">Subtítulo</label><input id="cfgSubtitleColor" type="color"></div>
+          </div>
+          <div class="medal-heading">Podio · oro, plata y bronce</div>
+          <div class="medal-subheading">Paletas predeterminadas</div>
+          <div class="medal-preset-grid" id="medalPaletteGrid" aria-label="Elegir paleta de podio"></div>
+          <div class="medal-subheading">Estilo de aplicación</div>
+          <div class="medal-style-grid" id="medalStyleGrid" aria-label="Elegir estilo del podio"></div>
+          <div class="medal-subheading">Personalizar colores del podio</div>
+          <div class="medal-config-grid">
+            <div class="medal-config"><div class="medal-name">🥇 Oro · 1°</div><div class="medal-fields"><label>Fondo <input id="cfgGoldBg" type="color" aria-label="Oro: fondo"></label><label>Texto <input id="cfgGoldText" type="color" aria-label="Oro: texto"></label></div></div>
+            <div class="medal-config"><div class="medal-name">🥈 Plata · 2°</div><div class="medal-fields"><label>Fondo <input id="cfgSilverBg" type="color" aria-label="Plata: fondo"></label><label>Texto <input id="cfgSilverText" type="color" aria-label="Plata: texto"></label></div></div>
+            <div class="medal-config"><div class="medal-name">🥉 Bronce · 3°</div><div class="medal-fields"><label>Fondo <input id="cfgBronzeBg" type="color" aria-label="Bronce: fondo"></label><label>Texto <input id="cfgBronzeText" type="color" aria-label="Bronce: texto"></label></div></div>
+          </div>
+          <div class="medal-preview" id="medalPreview" aria-label="Vista previa del podio">
+            <div data-medal-preview="gold"><span>PISTA 3 · <span class="medal-place">1°</span></span><span>00:38.05</span></div>
+            <div data-medal-preview="silver"><span>PISTA 4 · <span class="medal-place">2°</span></span><span>00:42.25</span></div>
+            <div data-medal-preview="bronze"><span>PISTA 5 · <span class="medal-place">3°</span></span><span>00:44.87</span></div>
+          </div>
+          <p class="small-info">Puedes elegir una paleta de podio y además cómo se aplica: fila completa, solo número, marca lateral, marca junto al lugar o columna de llegada. No se aplica a descalificados.</p>
+        </section>
+        <section class="cfg-page" data-panel="fonts" role="tabpanel" hidden>
+          <h3>Tipografía del tablero</h3>
+          <div class="field-grid two">
+            <div class="field"><label for="cfgFont">Textos, títulos y nombres</label><select id="cfgFont">
+              <option value="system">Segoe UI (predeterminada)</option>
+              <option value="arial">Arial</option><option value="verdana">Verdana</option><option value="tahoma">Tahoma</option>
+              <option value="trebuchet">Trebuchet MS</option><option value="georgia">Georgia</option>
+              <option value="times">Times New Roman</option><option value="calibri">Calibri</option>
+              <option value="impact">Impact</option><option value="consolas">Consolas</option>
+              <option value="courier">Courier New</option>
+            </select></div>
+            <div class="field"><label for="cfgClockFont">Cronómetros y números</label><select id="cfgClockFont">
+              <option value="system">Segoe UI (predeterminada)</option>
+              <option value="arial">Arial</option><option value="verdana">Verdana</option><option value="tahoma">Tahoma</option>
+              <option value="trebuchet">Trebuchet MS</option><option value="georgia">Georgia</option>
+              <option value="times">Times New Roman</option><option value="calibri">Calibri</option>
+              <option value="impact">Impact</option><option value="consolas">Consolas</option>
+              <option value="courier">Courier New</option>
+              <option value="dragones-svg">SVG Dragones · 7 segmentos (original)</option>
+              <option value="dragones-svg-full">SVG Dragones · 7 segmentos (centésimas del mismo tamaño)</option>
+            </select></div>
+          </div>
+          <div class="type-sample" aria-label="Vista previa de tipografías">
+            <div class="type-sample-title" id="fontSample">NATACIÓN · 100 M LIBRE</div>
+            <div class="type-sample-time" id="clockSample">01:23.45</div>
+          </div>
+          <p class="small-info">SVG Dragones reproduce la geometría original de siete segmentos. Puedes elegir la versión original con centésimas pequeñas o una variante con centésimas del mismo tamaño: “00:00.00”. No necesita instalar ninguna fuente. Se aplica al cronómetro del tablero y del proyector.</p>
+        </section>
+        <section class="cfg-page" data-panel="sizes" role="tabpanel" hidden>
+          <div class="size-tools"><h3>Tamaño de textos por zona</h3><button id="resetTextSizes" type="button" class="cfg-btn">Restablecer tamaños</button></div>
+          <div class="size-grid" id="textSizesGrid"></div>
+          <div id="sizesPreview" class="sizes-preview" aria-label="Vista previa de tamaños">
+            <div class="sizes-preview-title">NATACIÓN <span style="float:right;font-size:.75em">EVENT 1 · HEAT 2</span></div>
+            <div class="sizes-preview-subtitle">100 m Libre · Damas</div>
+            <div class="sizes-preview-headers"><span>PISTA</span><span>NADADOR / CLUB</span><span>POS.</span><span style="text-align:right">TIEMPO</span></div>
+            <div class="sizes-preview-row"><span class="sizes-preview-lane">1</span><span class="sizes-preview-name">Nadadora · Club Dragones</span><span class="sizes-preview-place">1</span><span class="sizes-preview-clock">01:23.45</span></div>
+            <div class="sizes-preview-footer">Resultados · Por Gato Plaza <svg class="mono-paws" viewBox="0 0 55 28" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dos patitas de gato"><g transform="translate(0 6) scale(.33)"><ellipse cx="12" cy="20" rx="6" ry="9" transform="rotate(-22 12 20)"/><ellipse cx="25" cy="11" rx="6" ry="9" transform="rotate(-8 25 11)"/><ellipse cx="41" cy="12" rx="6" ry="9" transform="rotate(8 41 12)"/><ellipse cx="54" cy="23" rx="6" ry="9" transform="rotate(22 54 23)"/><path d="M31 27c-8 0-10 9-17 16-5 5-2 15 5 17 6 2 9-3 15-3s9 6 16 3c8-3 8-12 2-17-8-7-11-16-21-16Z"/></g><g transform="translate(27 0) scale(.33)"><ellipse cx="12" cy="20" rx="6" ry="9" transform="rotate(-22 12 20)"/><ellipse cx="25" cy="11" rx="6" ry="9" transform="rotate(-8 25 11)"/><ellipse cx="41" cy="12" rx="6" ry="9" transform="rotate(8 41 12)"/><ellipse cx="54" cy="23" rx="6" ry="9" transform="rotate(22 54 23)"/><path d="M31 27c-8 0-10 9-17 16-5 5-2 15 5 17 6 2 9-3 15-3s9 6 16 3c8-3 8-12 2-17-8-7-11-16-21-16Z"/></g></svg></div>
+          </div>
+          <p class="small-info">Los porcentajes son relativos al tamaño automático de cada zona. Los límites de pantalla evitan que desaparezcan pistas.</p>
+        </section>
+        <section class="cfg-page" data-panel="swimmers" role="tabpanel" hidden>
+          <div class="section-top"><h3>Nadadores · 8 pistas</h3><span id="editingHeatLabel" class="small-info"></span></div>
+          <div id="rosterEditor" class="roster-grid"></div>
+        </section>
+        <section class="cfg-page" data-panel="club" role="tabpanel" hidden>
+          <h3>Imagen del club</h3>
+          <div class="logo-control"><img id="logoPreview" class="logo-preview" alt="Vista previa del logo"><input id="logoInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"><button id="removeLogo" type="button" class="cfg-btn">Quitar imagen</button></div>
+          <p class="small-info">El logo se guarda en este navegador y se muestra en la pantalla del proyector.</p>
+        </section>
+        <section class="cfg-page" data-panel="shortcuts" role="tabpanel" hidden>
+          <div class="shortcut-top"><h3>Atajos de teclado</h3><button type="button" class="cfg-btn" id="restoreShortcuts">Restablecer teclas</button></div>
+          <p class="shortcut-hint">Haz clic en un atajo y presiona la tecla o combinación deseada. Admite Mayús y las teclas numéricas. «×» deja una función sin atajo. Los cambios se aplican al pulsar Guardar.</p>
+          <div id="shortcutEditor"></div>
+          <div id="shortcutFeedback" class="shortcut-feedback" role="status" aria-live="polite"></div>
+          <p class="shortcut-hint">Las teclas 1–8 del teclado numérico funcionan igual que las de la fila superior. Se impiden asignaciones duplicadas y combinaciones reservadas del navegador. Los comandos Avanzar, Repetir y Event 1 permanecen bloqueados durante una carrera.</p>
+        </section>
+        <section class="cfg-page" data-panel="results" role="tabpanel" hidden>
+          <h3>Resultados y registros</h3>
+          <div class="row-inline"><button id="exportHistory" type="button" class="cfg-btn">↓ Exportar CSV</button><button id="clearHistory" type="button" class="cfg-btn red">Borrar historial</button><button id="restartFromSettings" type="button" class="cfg-btn red">⟲ Reiniciar desde Event 1</button></div>
+          <p class="small-info">Reiniciar vuelve a Event 1 / Heat 1 y pone los ocho cronómetros en cero. Conserva la programación y el historial; este último se borra por separado.</p>
+          <p id="historyCount" class="small-info"></p>
+
+        </section>
+        </div>
+      </div>
+    </div>
+    <div class="dialog-bottom"><button id="cancelSettings" type="button" class="cfg-btn">Cancelar</button><button id="saveSettings" type="button" class="cfg-btn primary">Guardar</button></div>
+  </form>
+</dialog>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>
+(()=>{'use strict';
+const DISPLAY=location.hash==='#pantalla';
+const KEY='gato-plaza-natacion-tablero-v1';
+const DARK={bg:'#07111f',text:'#f0f7ff',alternate:'#10243a',columns:'#16385b',titleColor:'#ecf5ff',subtitleColor:'#8dc5ee'};
+const LIGHT={bg:'#f3f7ff',text:'#142c43',alternate:'#ddebf7',columns:'#b8d8f1',titleColor:'#132b46',subtitleColor:'#35668b'};
+// Cada estilo define ambos fondos y ambos colores de texto de las pistas.
+const COLOR_FIELDS=[['cfgBg','bg'],['cfgText','text'],['cfgOddBg','oddBg'],['cfgOddText','oddText'],['cfgAlternate','alternate'],['cfgEvenText','evenText'],['cfgColumns','columns'],['cfgTitleColor','titleColor'],['cfgSubtitleColor','subtitleColor']];
+const DEFAULT_MEDALS={goldBg:'#735217',goldText:'#fff3be',silverBg:'#46576a',silverText:'#f4f8ff',bronzeBg:'#6c4934',bronzeText:'#fff1dc'};
+const MEDAL_FIELDS=[['cfgGoldBg','goldBg'],['cfgGoldText','goldText'],['cfgSilverBg','silverBg'],['cfgSilverText','silverText'],['cfgBronzeBg','bronzeBg'],['cfgBronzeText','bronzeText']];
+const MEDAL_PALETTES={classic:{name:'Metálico clásico',...DEFAULT_MEDALS},soft:{name:'Suave pastel',goldBg:'#f4dfa0',goldText:'#4e3c07',silverBg:'#dae2ea',silverText:'#36506a',bronzeBg:'#e5c2a8',bronzeText:'#5d3520'},vivid:{name:'Vivo',goldBg:'#f0c400',goldText:'#3f2a00',silverBg:'#79b9ff',silverText:'#0e2d4b',bronzeBg:'#ef8f5d',bronzeText:'#3b1604'},flat:{name:'Plano oscuro',goldBg:'#8f6d11',goldText:'#fff7da',silverBg:'#566678',silverText:'#f6fbff',bronzeBg:'#7b4f39',bronzeText:'#fff3ea'},mono:{name:'Grises',goldBg:'#35404f',goldText:'#ffffff',silverBg:'#5c6b7a',silverText:'#ffffff',bronzeBg:'#818d99',bronzeText:'#ffffff'}};
+const PODIUM_STYLES={row:{name:'Fila completa',desc:'Resalta toda la fila'},place:{name:'Solo número',desc:'Solo colorea 1°, 2° y 3°'},marker:{name:'Marca lateral',desc:'Una marca simple al lado de la fila'},dot:{name:'Marca junto al lugar',desc:'Una señal pequeña junto al número'},column:{name:'Columna llegada',desc:'Pinta la casilla del lugar'}};
+const makeColors=(bg,text,alternate,evenText,columns,titleColor,subtitleColor,oddBg=bg,oddText=text)=>({bg,text,alternate,evenText,columns,titleColor,subtitleColor,oddBg,oddText});
+const PRESETS={
+ classic:{name:'Oscuro clásico',theme:'dark',colors:makeColors('#07111f','#f0f7ff','#10243a','#d9ecff','#16385b','#ecf5ff','#8dc5ee')},
+ olympic:{name:'Azul olímpico',theme:'dark',colors:makeColors('#07112c','#eaf5ff','#164a96','#ffffff','#154073','#ffffff','#9bd9ff')},
+ pool:{name:'Verde piscina',theme:'dark',colors:makeColors('#062620','#e9fff8','#105c4b','#d4fff0','#137762','#f2fffc','#9cf8df')},
+ gold:{name:'Noche y oro',theme:'dark',colors:makeColors('#13151c','#fff8df','#423117','#ffdf81','#65502b','#ffe09a','#eac477')},
+ white:{name:'Blanco olímpico',theme:'light',colors:makeColors('#e9f1fa','#1d3652','#cfddf0','#164c7b','#9bc0df','#112f4c','#286da5','#ffffff')},
+ contrast:{name:'Alto contraste',theme:'dark',colors:makeColors('#000000','#ffffff','#292929','#ffe95a','#343434','#ffffff','#ffffff')},
+ coral:{name:'Coral',theme:'dark',colors:makeColors('#191827','#fff1fa','#49334b','#ffe1d0','#594361','#fff6ed','#ffb8d9')}
+};
+const SIZE_ITEMS=[['title','Título principal'],['subtitle','Subtítulo / prueba'],['eventLabel','EVENT / HEAT (etiquetas)'],['eventValue','Números Event / Heat'],['headers','Encabezados columnas'],['lane','Número de pista'],['swimmer','Nombre nadador'],['club','Club / país'],['place','Posición de llegada'],['clock','Cronómetros (incluye SVG)'],['footer','Mensaje inferior']];
+const defaultTextSizes=()=>Object.fromEntries(SIZE_ITEMS.map(([id])=>[id,100]));
+const FONTS={system:'"Segoe UI",Inter,ui-sans-serif,system-ui,Arial,sans-serif',arial:'Arial,Helvetica,sans-serif',verdana:'Verdana,Geneva,sans-serif',tahoma:'Tahoma,Arial,sans-serif',trebuchet:'"Trebuchet MS",Arial,sans-serif',georgia:'Georgia,serif',times:'"Times New Roman",Times,serif',calibri:'Calibri,"Segoe UI",Arial,sans-serif',impact:'Impact,"Arial Narrow",Arial,sans-serif',consolas:'Consolas,"Courier New",monospace',courier:'"Courier New",Courier,monospace'};
+const fontKey=v=>Object.hasOwn(FONTS,v)?v:'system';
+const clockFontKey=v=>(v==='dragones-svg'||v==='dragones-svg-full')?v:fontKey(v);
+const $=id=>document.getElementById(id);
+const clamp=(v,lo,hi)=>Math.min(hi,Math.max(lo,Number.isFinite(Number(v))?Number(v):lo));
+const DEFAULT_SHORTCUTS={start:'Enter',undo:'Backspace',next:'',repeat:'',event1:'',...Object.fromEntries(Array.from({length:8},(_,i)=>['stop'+(i+1),'Digit'+(i+1)])),...Object.fromEntries(Array.from({length:8},(_,i)=>['dq'+(i+1),'Shift+Digit'+(i+1)]))};
+const SHORTCUT_GROUPS=[['Carrera y navegación',[['start','Iniciar carrera'],['undo','Deshacer última llegada'],['next','Avanzar'],['repeat','Repetir Heat'],['event1','Volver a Event 1']]],['Detener pistas',Array.from({length:8},(_,i)=>['stop'+(i+1),'Pista '+(i+1)])],['Descalificar',Array.from({length:8},(_,i)=>['dq'+(i+1),'Descalificar pista '+(i+1)])]];
+function normalShortcut(ev){
+ if(ev.altKey||ev.ctrlKey||ev.metaKey)return null;
+ let code=ev.code||'';
+ if(/^Numpad[0-9]$/.test(code))code='Digit'+code.slice(-1);
+ if(code==='NumpadEnter')code='Enter';
+ if(!code||!(/^(Digit[0-9]|Key[A-Z]|F(?:[1-4]|[6-9]|10)|Arrow(?:Up|Down|Left|Right)|Enter|Backspace|Space|Home|End|PageUp|PageDown|Insert|Delete|Minus|Equal|BracketLeft|BracketRight|Backslash|Semicolon|Quote|Comma|Period|Slash|Backquote)$/.test(code)))return null;
+ return (ev.shiftKey?'Shift+':'')+code;
+}
+function shortcutText(combo){
+ if(!combo)return 'Sin asignar';
+ const parts=String(combo).split('+');return parts.map(k=>{
+  if(k==='Shift')return 'Mayús';
+  if(k.startsWith('Digit'))return k.slice(5);
+  if(k.startsWith('Key'))return k.slice(3);
+  const names={Enter:'Enter',Backspace:'Retroceso',Space:'Espacio',ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→',PageUp:'Re Pág',PageDown:'Av Pág',Delete:'Supr',Insert:'Insert',Minus:'-',Equal:'=',Comma:',',Period:'.',Slash:'/',Semicolon:';',Quote:"'",BracketLeft:'[',BracketRight:']',Backslash:'\\',Backquote:'`'};
+  return names[k]||k;
+ }).join(' + ');
+}
+function safeShortcuts(stored){
+ const out={...DEFAULT_SHORTCUTS};
+ for(const key of Object.keys(DEFAULT_SHORTCUTS)){
+  const value=stored?.[key];
+  if(value===''||typeof value==='string'&&/^(?:Shift\+)?(?:Digit[0-9]|Key[A-Z]|F(?:[1-4]|[6-9]|10)|Arrow(?:Up|Down|Left|Right)|Enter|Backspace|Space|Home|End|PageUp|PageDown|Insert|Delete|Minus|Equal|BracketLeft|BracketRight|Backslash|Semicolon|Quote|Comma|Period|Slash|Backquote)$/.test(value))out[key]=value;
+ }
+ return out;
+}
+const defaultSettings=()=>({title:'Copa',subtitle:'',maxHeats:3,autoAdvance:false,resultDelay:10,clockMode:'final',rowOrder:'arrival',shortcuts:{...DEFAULT_SHORTCUTS},medals:{...MEDAL_PALETTES.vivid},podiumPaletteId:'vivid',podiumStyle:'place',showEvent:true,showHeat:true,touch:!!(window.matchMedia&&matchMedia('(pointer:coarse)').matches),showNames:false,showClubs:false,showCountries:false,projectionAspect:'auto',projectionSafe:0,fontMain:'consolas',fontClock:'dragones-svg-full',logo:'',theme:'dark',paletteId:'custom',textSizes:{...defaultTextSizes(),subtitle:150,headers:150,place:60,clock:95},colors:{...PRESETS.classic.colors,oddText:'#ff000d'}});
+const emptyLane=i=>({lane:i+1,name:'',club:'',country:'',active:true,status:'pending',elapsed:null,order:null,restore:null});
+const fresh=()=>({version:1,event:1,heat:1,phase:'ready',startMs:null,advanceAt:null,settings:defaultSettings(),lanes:Array.from({length:8},(_,i)=>emptyLane(i)),events:{'1':{trial:'50 m Libre',gender:'Varones',heats:3}},rosters:{},history:[]});
+let model=fresh(),projector=null,channel=null,logoPending='',toastTimer=0,lastBoardMarkup='',lastMessage='',pendingEvents={},activeEditorEvent=1;
+try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved&&saved.version===1&&Array.isArray(saved.lanes)&&saved.lanes.length===8){
+ const old=saved.settings?.colors||{};
+ const colors={...PRESETS.classic.colors,...old,oddBg:old.oddBg||old.bg||PRESETS.classic.colors.oddBg,oddText:old.oddText||old.text||PRESETS.classic.colors.oddText,evenText:old.evenText||old.text||PRESETS.classic.colors.evenText};
+ model={...fresh(),...saved,settings:{...defaultSettings(),...saved.settings,clockMode:saved.settings?.clockMode==='final'?'final':'live',rowOrder:saved.settings?.rowOrder==='arrival'?'arrival':'lane',medals:{...DEFAULT_MEDALS,...(saved.settings?.medals||{})},podiumPaletteId:saved.settings?.podiumPaletteId||'custom',podiumStyle:PODIUM_STYLES[saved.settings?.podiumStyle]?saved.settings.podiumStyle:'row',paletteId:saved.settings?.paletteId||'custom',shortcuts:safeShortcuts(saved.settings?.shortcuts),textSizes:{...defaultTextSizes(),...(saved.settings?.textSizes||{})},colors}};
+}}catch(err){console.warn('No se pudo leer el guardado',err)}
+// Programa oficial LA28: 20 pruebas por sexo + 4x100 combinado mixto (41 eventos en total).
+const TRIALS=['50 m Libre','100 m Libre','200 m Libre','400 m Libre','800 m Libre','1500 m Libre','50 m Espalda','100 m Espalda','200 m Espalda','50 m Pecho','100 m Pecho','200 m Pecho','50 m Mariposa','100 m Mariposa','200 m Mariposa','200 m Combinado','400 m Combinado','4×100 m Libre','4×200 m Libre','4×100 m Combinado','4×100 m Combinado mixto'];
+const TRIAL_OPTIONS='<option value="">Elegir prueba...</option>'+TRIALS.map(t=>`<option value="${t}">${t}</option>`).join('');
+const GENDER_OPTIONS='<option value="Damas">Damas</option><option value="Varones">Varones</option><option value="Mixto">Mixto</option>';
+function normalizedEvent(v){return {trial:TRIALS.includes(v?.trial)?v.trial:'',gender:['Damas','Varones','Mixto'].includes(v?.gender)?v.gender:'Damas',heats:Math.floor(clamp(v?.heats??model.settings.maxHeats,1,999))}}
+function eventInfo(event){return normalizedEvent(model.events?.[String(event)])}
+function eventSubtitle(event){const info=eventInfo(event);return info.trial?(info.trial==='4×100 m Combinado mixto'?'4×100 m Combinado · Mixto':`${info.trial} · ${info.gender}`):(model.settings.subtitle||'')}
+function programInfo(v){return v.trial?(v.trial==='4×100 m Combinado mixto'?'4×100 m Combinado · Mixto':`${v.trial} · ${v.gender}`):'Sin prueba asignada'}
+const safeText=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+let pendingShortcuts={...DEFAULT_SHORTCUTS},listeningShortcut=null;
+function shortcutOwner(combo,skip){return Object.keys(pendingShortcuts).find(k=>k!==skip&&combo&&pendingShortcuts[k]===combo)}
+function shortcutLabel(action){for(const [,entries] of SHORTCUT_GROUPS){const found=entries.find(([k])=>k===action);if(found)return found[1]}return action}
+function showShortcutFeedback(msg=''){$('shortcutFeedback').textContent=msg}
+function drawShortcuts(){
+ const el=$('shortcutEditor');if(!el)return;
+ el.innerHTML=SHORTCUT_GROUPS.map(([group,items])=>`<div class="shortcut-group"><h4 class="shortcut-group-title">${group}</h4><div class="shortcut-grid">${items.map(([id,label])=>`<div class="shortcut-row"><span class="shortcut-name">${label}</span><button class="shortcut-bind${listeningShortcut===id?' is-listening':''}" type="button" data-bind-shortcut="${id}" aria-label="Configurar ${label}">${listeningShortcut===id?'Pulsa una tecla…':shortcutText(pendingShortcuts[id])}</button><button class="shortcut-clear" type="button" data-clear-shortcut="${id}" title="Quitar atajo de ${label}" aria-label="Quitar atajo de ${label}">×</button></div>`).join('')}</div></div>`).join('');
+}
+function captureShortcut(ev){
+ if(!listeningShortcut)return false;
+ ev.preventDefault();ev.stopImmediatePropagation();
+ if(ev.key==='Escape'){listeningShortcut=null;drawShortcuts();showShortcutFeedback('Edición cancelada.');return true}
+ if(ev.repeat)return true;
+ const combo=normalShortcut(ev);
+ if(!combo){showShortcutFeedback('Tecla no admitida o reservada. Prueba otra combinación.');return true}
+ const owner=shortcutOwner(combo,listeningShortcut);
+ if(owner){showShortcutFeedback(`${shortcutText(combo)} ya está asignado a «${shortcutLabel(owner)}». Elige otra tecla.`);return true}
+ pendingShortcuts[listeningShortcut]=combo;
+ listeningShortcut=null;showShortcutFeedback('Atajo asignado. Pulsa Guardar para aplicarlo.');drawShortcuts();return true;
+}
+const stateCopy=()=>JSON.parse(JSON.stringify(model));
+function persist(){if(DISPLAY)return;try{localStorage.setItem(KEY,JSON.stringify(model))}catch(err){notify('No se pudo guardar. Prueba con una imagen más pequeña.')}broadcast()}
+function broadcast(){if(DISPLAY)return;const msg={kind:'gato-state',payload:stateCopy()};try{projector?.postMessage(msg,'*')}catch(e){}try{channel?.postMessage(msg)}catch(e){}}
+function acceptState(payload){if(!DISPLAY||!payload||payload.version!==1||!Array.isArray(payload.lanes)||payload.lanes.length!==8)return;model=payload;render()}
+try{if('BroadcastChannel'in window){channel=new BroadcastChannel('gato-plaza-natacion-sync-v1');channel.onmessage=e=>{if(DISPLAY&&e.data?.kind==='gato-state')acceptState(e.data.payload)}}}catch(e){}
+window.addEventListener('message',e=>{if(e.data?.kind==='gato-state'){if(DISPLAY&&(e.source===window.opener||!window.opener))acceptState(e.data.payload)}else if(!DISPLAY&&e.data?.kind==='gato-request'){broadcast()}});
+window.addEventListener('storage',e=>{if(DISPLAY&&e.key===KEY&&e.newValue){try{acceptState(JSON.parse(e.newValue))}catch(ex){}}});
+function notify(msg){if(DISPLAY)return;const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3000)}
+// Cronometraje: reloj monotónico común para salida, llegadas y pantalla.
+// El instante DOM de la tecla ya está marcado antes de ejecutar el controlador JS.
+// timeOrigin + performance.now() permite sincronizar con la ventana de proyección
+// y conserva la fecha absoluta necesaria para el historial y el archivo CSV.
+function clockNow(){return performance.timeOrigin+performance.now()}
+function inputInstant(ev){
+ const now=performance.now();
+ let stamp=Number(ev?.timeStamp);
+ // Algunos navegadores antiguos expresan timeStamp como época Unix.
+ if(!Number.isFinite(stamp)||stamp<=0)stamp=now;
+ else if(stamp>1e12)stamp-=performance.timeOrigin;
+ // Rechazar marcas incompatibles con la referencia monotónica actual.
+ if(stamp<0||stamp>now+250)stamp=now;
+ return performance.timeOrigin+stamp;
+}
+// Una ráfaga de teclas produce una sola reconstrucción del tablero por fotograma.
+// Primero capturamos el instante y el estado; luego pintamos y guardamos.
+let pendingRaceFrame=0;
+function queueRaceRefresh(){
+ if(DISPLAY||pendingRaceFrame)return;
+ pendingRaceFrame=requestAnimationFrame(()=>{pendingRaceFrame=0;render();persist()});
+}
+function fmt(ms){if(ms===null||ms===undefined||!Number.isFinite(ms))return '00:00.00';const hun=Math.floor(Math.max(0,ms)/10);const hundred=String(hun%100).padStart(2,'0');const totalSec=Math.floor(hun/100);return `${String(Math.floor(totalSec/60)).padStart(2,'0')}:${String(totalSec%60).padStart(2,'0')}.${hundred}`}
+
+// Segmentos y geometría reproducidos del archivo app/web/app.js del cronómetro Dragones.
+// Los biseles se dibujan como polígonos, sin fuentes externas ni aproximaciones CSS.
+const DRAGON_SEGMENTS={
+ '0':['a','b','c','d','e','f'], '1':['b','c'], '2':['a','b','d','e','g'],
+ '3':['a','b','c','d','g'], '4':['b','c','f','g'], '5':['a','c','d','f','g'],
+ '6':['a','c','d','e','f','g'], '7':['a','b','c'], '8':['a','b','c','d','e','f','g'],
+ '9':['a','b','c','d','f','g'], '-':['g']
+};
+const DRAGON_POINTS={
+ a:'18,-1.5 46,-1.5 52,4.5 46,10.5 18,10.5 12,4.5',
+ f:'5,11 11,5 17,11 17,45 11,51 5,45',
+ b:'47,11 53,5 59,11 59,45 53,51 47,45',
+ g:'18,46 46,46 52,51 46,56 18,56 12,51',
+ e:'5,57 11,51 17,57 17,91 11,97 5,91',
+ c:'47,57 53,51 59,57 59,91 53,97 47,91',
+ d:'18,92 46,92 52,98 46,104 18,104 12,98'
+};
+function dragonPointsToPath(points){return 'M'+points.trim().split(/\s+/).map((pair,i)=>(i?'L':'')+pair).join('')+'Z'}
+const DRAGON_PATHS=Object.fromEntries(Object.entries(DRAGON_SEGMENTS).map(([ch,parts])=>[ch,parts.map(seg=>dragonPointsToPath(DRAGON_POINTS[seg])).join('')]));
+const DRAGON_TIME_RE=/^\d+:\d{2}\.\d{2}$/;
+const isDragonClockFont=v=>v==='dragones-svg'||v==='dragones-svg-full';
+function dragonClockSignature(value,fullFraction=false){return `${fullFraction?'full':'small'}:${value.split('.')[0].length}`}
+function dragonClockCharacters(value){const [main,fraction='00']=value.split('.');return (main+fraction).replace(':','').split('')}
+function dragonSvgClock(value,fullFraction=false){
+  const [main,fraction='00']=value.split('.');
+  let x=2,index=0;
+  const parts=[];
+  for(const ch of main){
+    if(ch===':'){
+      parts.push(`<rect class="svg-colon" x="${x+4}" y="32" width="7" height="7" rx="1"></rect>`);
+      parts.push(`<rect class="svg-colon" x="${x+4}" y="63" width="7" height="7" rx="1"></rect>`);
+      x+=18;
+    }else{
+      parts.push(`<g transform="translate(${x} 2) scale(1)"><path class="svg-digit-path" data-seven-index="${index++}" data-seven-char="${ch}" d="${DRAGON_PATHS[ch]||''}"></path></g>`);
+      x+=66;
+    }
+  }
+  x+=5;
+  if(fullFraction){
+    parts.push(`<rect class="svg-colon" x="${x+3}" y="88" width="8" height="8" rx="1.5"></rect>`);
+    x+=18;
+    for(const ch of fraction){
+      parts.push(`<g transform="translate(${x} 2) scale(1)"><path class="svg-digit-path" data-seven-index="${index++}" data-seven-char="${ch}" d="${DRAGON_PATHS[ch]||''}"></path></g>`);
+      x+=66;
+    }
+  }else{
+    for(const ch of fraction){
+      parts.push(`<g transform="translate(${x} 51) scale(0.5)"><path class="svg-digit-path" data-seven-index="${index++}" data-seven-char="${ch}" d="${DRAGON_PATHS[ch]||''}"></path></g>`);
+      x+=34;
+    }
+  }
+  return `<svg class="dragon-seven-svg" viewBox="0 0 ${x+2} 108" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">${parts.join('')}</svg>`;
+}
+function paintClock(element,value,svgMode=model.settings.fontClock){
+  if(!element)return;
+  const useDragon = svgMode===true ? true : isDragonClockFont(svgMode);
+  const fullFraction = svgMode==='dragones-svg-full';
+  const isSvg=useDragon&&DRAGON_TIME_RE.test(value);
+  element.classList.toggle('clock-svg',isSvg);
+  element.setAttribute('aria-label',value);
+  if(!isSvg){
+    if(element.dataset.clockValue!==value||element.firstElementChild){element.textContent=value}
+    delete element.dataset.clockShape;
+    element.dataset.clockValue=value;
+    return;
+  }
+  // La vista previa suele recibir el MISMO tiempo al cambiar de tipografía.
+  // Solo reutilizar el SVG si también coincide la geometría elegida:
+  // original (centésimas pequeñas) o completa (centésimas grandes).
+  const shape=dragonClockSignature(value,fullFraction);
+  const svg=element.querySelector('.dragon-seven-svg');
+  if(element.dataset.clockValue===value && element.dataset.clockShape===shape && svg)return;
+  if(!svg||element.dataset.clockShape!==String(shape)){
+    element.innerHTML=dragonSvgClock(value,fullFraction);
+    element.dataset.clockShape=String(shape);
+  }else{
+    const digits=dragonClockCharacters(value);
+    svg.querySelectorAll('path[data-seven-index]').forEach((path,index)=>{
+      const ch=digits[index];
+      if(path.dataset.sevenChar!==ch){path.setAttribute('d',DRAGON_PATHS[ch]||'');path.dataset.sevenChar=ch}
+    });
+  }
+  element.dataset.clockValue=value;
+}
+
+function haveContestants(){return model.lanes.some(l=>l.active)}
+function resolved(){return haveContestants()&&model.lanes.every(l=>!l.active||l.status==='done'||l.status==='dq')}
+// Clasificación oficial por centésimas: tiempos iguales comparten puesto.
+// Se usa la misma precisión que en fmt(), sin decidir empates por el orden de pulsación.
+function officialHundredths(ms){return Math.floor(Math.max(0,Number(ms)||0)/10)}
+function placements(){
+ const result={};
+ const finished=model.lanes.filter(l=>l.active&&l.status==='done'&&Number.isFinite(l.elapsed))
+   .sort((a,b)=>officialHundredths(a.elapsed)-officialHundredths(b.elapsed)||(a.order??999)-(b.order??999)||a.lane-b.lane);
+ let previousTime=null, previousPlace=0;
+ finished.forEach((lane,index)=>{
+   const time=officialHundredths(lane.elapsed);
+   const place=time===previousTime?previousPlace:index+1;
+   result[lane.lane]=place;
+   previousTime=time;
+   previousPlace=place;
+ });
+ return result;
+}
+function mainVars(){const s=model.settings,c=s.colors;const d=document.documentElement.style;d.setProperty('--board-font',FONTS[fontKey(s.fontMain)]);d.setProperty('--number-font',FONTS[fontKey(s.fontClock)]);
+ for(const [key] of SIZE_ITEMS)d.setProperty('--sz-'+key,clamp(s.textSizes?.[key]??100,60,150)/100);
+ Object.entries({'--lane-odd-bg':c.oddBg||c.bg,'--lane-even-bg':c.alternate,'--lane-odd-text':c.oddText||c.text,'--lane-even-text':c.evenText||c.text,'--bg':c.bg,'--text':c.text,'--alternate':c.alternate,'--columns':c.columns,'--title':c.titleColor,'--subtitle':c.subtitleColor,'--accent':s.theme==='light'?'#ac6800':'#ffd64d','--finished':s.theme==='light'?'#087969':'#61e4d4','--red':s.theme==='light'?'#c92445':'#ff747e', '--line':s.theme==='light'?'rgba(19,64,101,.18)':'rgba(159,189,223,.15)',
+ '--medal-gold-bg':s.medals?.goldBg||DEFAULT_MEDALS.goldBg,'--medal-gold-text':s.medals?.goldText||DEFAULT_MEDALS.goldText,
+ '--medal-silver-bg':s.medals?.silverBg||DEFAULT_MEDALS.silverBg,'--medal-silver-text':s.medals?.silverText||DEFAULT_MEDALS.silverText,
+ '--medal-bronze-bg':s.medals?.bronzeBg||DEFAULT_MEDALS.bronzeBg,'--medal-bronze-text':s.medals?.bronzeText||DEFAULT_MEDALS.bronzeText}).forEach(([k,v])=>d.setProperty(k,v));document.documentElement.style.colorScheme=s.theme;
+const parts=['minmax(45px,.55fr)'];if(s.showNames)parts.push('minmax(75px,2.4fr)');if(s.showClubs||s.showCountries)parts.push('minmax(75px,1.4fr)');parts.push('minmax(50px,.75fr)','minmax(114px,1.95fr)');if(!DISPLAY)parts.push(s.touch?'minmax(106px,1.35fr)':'minmax(43px,.65fr)');d.setProperty('--board-cols',parts.join(' '));
+// Construir columnas compactas según las celdas realmente visibles.
+// Si se muestran nombres, el club aparece debajo del nadador; si los nombres
+// están ocultos, el club ocupa su propia columna. No reservar huecos vacíos.
+const hasIdentity=!!(s.showNames||s.showClubs||s.showCountries);
+const compactParts=['minmax(22px,.48fr)'];
+if(hasIdentity)compactParts.push('minmax(42px,1.55fr)');
+compactParts.push('minmax(30px,.78fr)','minmax(105px,2.3fr)');
+if(!DISPLAY)compactParts.push(s.touch?'minmax(67px,.82fr)':'minmax(33px,.42fr)');
+d.setProperty('--board-cols-compact',compactParts.join(' '));
+d.setProperty('--mobile-cols',compactParts.join(' '));
+d.setProperty('--projection-compact-cols',compactParts.join(' '));
+document.body.classList.toggle('has-names',s.showNames);
+document.body.classList.toggle('has-identity',hasIdentity);
+document.body.classList.toggle('display-only',DISPLAY);
+$('board').dataset.podiumStyle=s.podiumStyle||'row';$('board').dataset.rowOrder=s.rowOrder==='arrival'?'arrival':'lane';
+}
+// Ajuste real al rectángulo útil del proyector; no depende de la proporción de la ventana de control.
+function fitBoard(){const board=$('board');if(!board)return;
+if(DISPLAY){const aspect=model.settings.projectionAspect||'auto';const ratios={'16:9':16/9,'16:10':16/10,'4:3':4/3,'21:9':21/9,'9:16':9/16};const margin=clamp(model.settings.projectionSafe||0,0,10)/100;
+const maxW=Math.max(1,window.innerWidth*(1-2*margin)),maxH=Math.max(1,window.innerHeight*(1-2*margin));let width=maxW,height=maxH;
+if(ratios[aspect]){const r=ratios[aspect];if(maxW/maxH>r)width=maxH*r;else height=maxW/r;}
+board.style.width=Math.floor(width)+'px';board.style.height=Math.floor(height)+'px';
+}else{board.style.width='';board.style.height='';}
+const box=board.getBoundingClientRect();const w=Math.max(box.width,1),h=Math.max(box.height,1);
+board.style.setProperty('--bw',w/100+'px');board.style.setProperty('--bh',h/100+'px');
+document.body.classList.toggle('board-compact',w<850);
+}
+function render(){mainVars();const s=model.settings;
+$('boardTitle').textContent=s.title||'NATACIÓN';$('boardSubtitle').textContent=eventSubtitle(model.event)||' ';
+$('clubLogo').removeAttribute('src');if(s.logo)$('clubLogo').src=s.logo;
+$('eventTile').hidden=!s.showEvent;$('heatTile').hidden=!s.showHeat;$('eventNumbering').hidden=!(s.showHeat||s.showEvent);
+$('eventValue').textContent=model.event;$('heatValue').textContent=model.heat;
+const headers=['<span class="head-lane">PISTA</span>'];if(s.showNames)headers.push('<span class="head-person">NADADOR</span>');if(s.showClubs||s.showCountries)headers.push(`<span class="head-club">${s.showClubs&&s.showCountries?'CLUB / PAÍS':s.showClubs?'CLUB':'PAÍS'}</span>`);headers.push('<span class="head-place">LLEGADA</span>','<span class="head-time">TIEMPO</span>');if(!DISPLAY)headers.push('<span class="head-action"></span>');$('columnHead').innerHTML=headers.join('');
+const places=placements();let html='';
+// Ordenar únicamente las filas visibles; las teclas siguen consultando la pista original.
+const visibleLanes=[...model.lanes];
+if(s.rowOrder==='arrival'){
+ visibleLanes.sort((a,b)=>{
+  const group=l=>l.active&&l.status==='done'?0:l.active&&l.status!=='dq'?1:l.active?2:3;
+  const ga=group(a),gb=group(b);if(ga!==gb)return ga-gb;
+  return ga===0?(places[a.lane]-places[b.lane]):a.lane-b.lane;
+ });
+}
+for(const l of visibleLanes){const active=l.active;const classStr=l.status==='dq'?'dq':l.status==='done'?'done':l.status==='pending'&&model.phase==='running'?'swimming':'';
+ const secondary=[s.showClubs?l.club:'',s.showCountries?l.country:''].filter(Boolean).join(' · ');
+ const identity=(s.showNames?l.name:'')||((!s.showNames&&s.showClubs)?l.club:'')||((!s.showNames&&s.showCountries)?l.country:'')||'—';
+ const place=l.status==='dq'?'DQ':l.status==='done'?`${places[l.lane]}°`:'—';
+ const time=l.status==='dq'?'DESC.':!active?'—':l.status==='done'?fmt(l.elapsed):s.clockMode==='final'?'—':model.phase==='running'?fmt(clockNow()-model.startMs):'00:00.00';
+ const club=[s.showClubs?l.club:'',s.showCountries?l.country:''].filter(Boolean).join(' · ')||'—';
+ const podium=l.status==='done'&&places[l.lane]>=1&&places[l.lane]<=3?' podium-'+places[l.lane]:'';
+ html+=`<div class="lane-row lane-grid ${classStr}${podium}${active?'':' inactive'}" data-row="${l.lane}" data-place="${l.status==='done'?places[l.lane]:''}" aria-label="Pista ${l.lane}${l.status==='done'?' · Llegada '+places[l.lane]:''}">
+ <div class="lane-id">${s.rowOrder==='arrival'&&place==='—'?'—':l.lane}</div>
+ <div class="swimmer-col" ${s.showNames?'':'style="display:none"'} title="${safeText(l.name)}"><span class="swimmer-name">${safeText(identity)}</span><span class="swimmer-mini">${safeText(secondary)}</span></div>
+ ${(s.showClubs||s.showCountries)?`<div class="club-col" title="${safeText(club)}">${safeText(club)}</div>`:''}
+ <div class="place-col">${place}</div>
+ <div class="time-col" data-clock="${l.lane}">${time}</div>
+ ${!DISPLAY?`<div class="control-col">
+ ${s.touch?`<button type="button" class="lane-action touch-stop${l.status==='done'?' undo':''}" data-action="${l.status==='done'?'undo':'stop'}" data-lane="${l.lane}" ${!active||l.status==='dq'||(model.phase!=='running'&&l.status!=='done')?'disabled':''} title="${l.status==='done'?'Deshacer llegada':'Detener pista '+l.lane}">${l.status==='done'?'↶':l.lane}</button>`:''}
+ <button type="button" class="lane-action dq-btn${l.status==='dq'?' selected':''}" data-action="dq" data-lane="${l.lane}" ${!active?'disabled':''} title="Marcar o quitar descalificación">DQ</button>
+ </div>`:''}</div>`;
+}
+$('laneRows').innerHTML=html;
+for(const clock of $('laneRows').querySelectorAll('[data-clock]'))paintClock(clock,clock.textContent);
+if(!DISPLAY){
+  const phase=model.phase==='running'?'running':model.phase==='finished'?'finished':'ready';
+  const labels={ready:['PREPARADO','Iniciar carrera'],running:['EN CURSO','Cronometrando'],finished:['RESULTADOS','Serie finalizada']};
+  const start=$('startBtn');start.dataset.phase=phase;
+  $('raceState').textContent=labels[phase][0];$('raceAction').textContent=labels[phase][1];
+  start.setAttribute('aria-label',`${labels[phase][0]}. ${labels[phase][1]}`);
+  start.title=phase==='ready'?'Iniciar la serie':labels[phase][1];
+  start.disabled=phase!=='ready'||!haveContestants();
+  for(const id of ['nextBtn','resetBtn','restartCompetitionBtn','restartFromSettings'])$(id).disabled=phase==='running';
+}
+fitBoard();updateClocks();}
+function updateClocks(){if(model.phase==='running'&&model.settings.clockMode!=='final'){const now=clockNow();for(const l of model.lanes){if(l.active&&l.status==='pending'){const t=$('laneRows').querySelector(`[data-clock="${l.lane}"]`);if(t)paintClock(t,fmt(now-model.startMs))}}}
+let msg='';if(model.phase==='running'){msg='EN CURSO';}else if(model.phase==='finished'){msg=model.settings.autoAdvance&&model.advanceAt!=null?`SIGUIENTE SERIE EN ${Math.max(0,Math.ceil((model.advanceAt-Date.now())/1000))} s`:'RESULTADOS · PULSA AVANZAR';}else{msg='LISTO PARA INICIAR';}
+if(DISPLAY)msg='';if(msg!==lastMessage){$('boardMessage').textContent=msg;lastMessage=msg}
+if(!DISPLAY&&model.phase==='finished'&&model.settings.autoAdvance&&model.advanceAt!=null&&Date.now()>=model.advanceAt)advance(false);
+}
+// Un solo ciclo de reloj; render() actualiza inmediatamente sin crear bucles adicionales.
+function clockLoop(){if(model.phase==='running'&&model.settings.clockMode!=='final'){const now=clockNow();for(const l of model.lanes){if(l.active&&l.status==='pending'){const t=$('laneRows').querySelector(`[data-clock="${l.lane}"]`);if(t)paintClock(t,fmt(now-model.startMs))}}}
+let msg='';if(model.phase==='running')msg='EN CURSO';else if(model.phase==='finished')msg=model.settings.autoAdvance&&model.advanceAt!=null?`SIGUIENTE SERIE EN ${Math.max(0,Math.ceil((model.advanceAt-Date.now())/1000))} s`:'RESULTADOS · PULSA AVANZAR';else msg='LISTO PARA INICIAR';if(DISPLAY)msg='';if(msg!==lastMessage){$('boardMessage').textContent=msg;lastMessage=msg}
+if(!DISPLAY&&model.phase==='finished'&&model.settings.autoAdvance&&model.advanceAt!=null&&Date.now()>=model.advanceAt){advance(false)}requestAnimationFrame(clockLoop)}
+function begin(ev){
+ if(DISPLAY||model.phase!=='ready')return;
+ if(!haveContestants()){notify('Activa al menos una pista');return}
+ if(!model.lanes.some(l=>l.active&&l.status==='pending')){notify('No hay pistas disponibles para cronometrar');return}
+ // Capturar antes de cualquier manipulación del DOM, render o almacenamiento.
+ const startInstant=inputInstant(ev);
+ model.startMs=startInstant;
+ model.phase='running';model.advanceAt=null;
+ queueRaceRefresh();
+}
+function completeIfReady(){if(model.phase==='running'&&resolved()){model.phase='finished';model.advanceAt=model.settings.autoAdvance?Date.now()+clamp(model.settings.resultDelay,3,120)*1000:null}}
+function stopLane(n,ev){
+ if(DISPLAY||model.phase!=='running')return;
+ const l=model.lanes[n-1];if(!l?.active||l.status!=='pending')return;
+ // El tiempo pertenece a la pulsación, no al momento de pintar el resultado.
+ const finishInstant=inputInstant(ev);
+ l.status='done';l.elapsed=Math.max(0,finishInstant-model.startMs);
+ l.order=Math.max(0,...model.lanes.map(x=>x.order||0))+1;
+ completeIfReady();
+ queueRaceRefresh();
+}
+function dqLane(n){if(DISPLAY)return;const l=model.lanes[n-1];if(!l?.active)return;if(l.status==='dq'){if(l.restore){l.status=l.restore.status;l.elapsed=l.restore.elapsed;l.order=l.restore.order}else{l.status='pending';l.elapsed=null;l.order=null}l.restore=null;if(model.phase==='finished'&&!resolved()){model.phase='running';model.advanceAt=null}}else{l.restore={status:l.status,elapsed:l.elapsed,order:l.order};l.status='dq';l.order=null;completeIfReady()}
+render();persist()}
+function undoLane(n){if(DISPLAY)return;const l=model.lanes[n-1];if(!l||l.status!=='done')return;l.status='pending';l.elapsed=null;l.order=null;if(model.phase==='finished'){model.phase='running';model.advanceAt=null}render();persist()}
+function undoLast(){const list=model.lanes.filter(l=>l.status==='done').sort((a,b)=>(b.order||0)-(a.order||0));if(list.length)undoLane(list[0].lane)}
+const rosterKey=(event,heat)=>`${event}_${heat}`;
+function takeRoster(){return model.lanes.map(l=>({name:l.name,club:l.club,country:l.country,active:l.active}))}
+function storeRoster(){model.rosters[rosterKey(model.event,model.heat)]=takeRoster()}
+function archiveCurrent(){if(!model.startMs)return;const place=placements();model.history.push({event:model.event,heat:model.heat,title:model.settings.title,subtitle:eventSubtitle(model.event),trial:eventInfo(model.event).trial,gender:eventInfo(model.event).gender,startedAt:model.startMs,lanes:model.lanes.map(l=>({lane:l.lane,name:l.name,club:l.club,country:l.country,active:l.active,status:l.status,place:place[l.lane]??null,elapsed:l.elapsed}))});}
+function loadRoster(event,heat){const snap=model.rosters[rosterKey(event,heat)];return Array.from({length:8},(_,i)=>({...emptyLane(i),...(snap?.[i]||{}),lane:i+1,status:'pending',elapsed:null,order:null,restore:null}))}
+function advance(manual=true){if(DISPLAY||model.phase==='running')return;storeRoster();archiveCurrent();if(model.heat>=eventInfo(model.event).heats){model.event+=1;model.heat=1}else{model.heat+=1}model.lanes=loadRoster(model.event,model.heat);model.phase='ready';model.startMs=null;model.advanceAt=null;render();persist()}
+function restartCompetition(){if(DISPLAY||model.phase==='running')return;if(!confirm('¿Reiniciar desde Event 1 / Heat 1?\n\nLos cronómetros actuales volverán a cero. Se conservan las pruebas configuradas, los nadadores y el historial.'))return;
+storeRoster();model.event=1;model.heat=1;model.lanes=loadRoster(1,1);model.phase='ready';model.startMs=null;model.advanceAt=null;render();persist();notify('Competencia reiniciada: Event 1 · Heat 1')}
+function resetRace(){if(DISPLAY||model.phase==='running')return;if(model.phase!=='ready'&&!confirm('¿Repetir esta serie? Se borrarán los tiempos de esta serie.'))return;model.lanes=model.lanes.map((l,i)=>({...l,status:'pending',elapsed:null,order:null,restore:null,lane:i+1}));model.phase='ready';model.startMs=null;model.advanceAt=null;render();persist()}
+function openProjector(){const target=location.href.split('#')[0]+'#pantalla';projector=window.open(target,'gato_plaza_proyeccion','width=1400,height=850,menubar=no,toolbar=no,location=no,status=no,scrollbars=no,resizable=yes');if(!projector){notify('Permite ventanas emergentes para abrir la proyección');return}projector.focus();setTimeout(broadcast,350);setTimeout(broadcast,1000)}
+const rosterHTML=()=>model.lanes.map(l=>`<div class="roster-card" data-edit="${l.lane}"><div class="row-title"><span>PISTA ${l.lane}</span><label class="toggle"><input data-field="active" type="checkbox" ${l.active?'checked':''}> Participa</label></div><div class="roster-fields"><input data-field="name" value="${safeText(l.name)}" maxlength="55" placeholder="Nombre" aria-label="Nombre pista ${l.lane}"><input data-field="club" value="${safeText(l.club)}" maxlength="35" placeholder="Club" aria-label="Club pista ${l.lane}"><input data-field="country" value="${safeText(l.country)}" maxlength="12" placeholder="País" aria-label="País pista ${l.lane}"></div></div>`).join('');
+function cfgEventNumber(){return Math.floor(clamp($('cfgEvent').value,1,9999))}
+function editorSnapshot(){if(activeEditorEvent<1)return;const id=String(activeEditorEvent);const trial=$('cfgTrial').value;const sex=trial==='4×100 m Combinado mixto'?'Mixto':$('cfgSex').value;pendingEvents[id]={trial,gender:sex,heats:Math.max(Math.floor(clamp($('cfgHeat').value,1,999)),Math.floor(clamp($('cfgMaxHeats').value,1,999)))}}
+function updateEventPreview(){const trial=$('cfgTrial').value;const gender=trial==='4×100 m Combinado mixto'?'Mixto':$('cfgSex').value;$('eventPreview').textContent=`EVENT ${cfgEventNumber()}: ${programInfo({trial,gender})}`}
+function loadEventEditor(n){activeEditorEvent=n;const info=normalizedEvent(pendingEvents[String(n)]);$('cfgTrial').value=info.trial;$('cfgSex').value=info.gender;$('cfgMaxHeats').value=info.heats;$('cfgSex').disabled=info.trial==='4×100 m Combinado mixto';updateEventPreview()}
+function changeEventEditor(){editorSnapshot();loadEventEditor(cfgEventNumber())}
+function handleTrialChange(){if($('cfgTrial').value==='4×100 m Combinado mixto'){$('cfgSex').value='Mixto';$('cfgSex').disabled=true}else{if($('cfgSex').value==='Mixto')$('cfgSex').value='Damas';$('cfgSex').disabled=false}updateEventPreview();editorSnapshot()}
+function renderProgram(){const entries=Object.entries(pendingEvents).filter(([id])=>/^\d+$/.test(id)).sort((a,b)=>Number(a[0])-Number(b[0]));$('programList').innerHTML=entries.length?entries.map(([key,info])=>`<div class="event-program-row" data-event-row="${key}"><span class="event-id">${key}</span><select data-program="trial" aria-label="Prueba Event ${key}">${TRIAL_OPTIONS}</select><select data-program="gender" aria-label="Categoría Event ${key}">${GENDER_OPTIONS}</select><input data-program="heats" aria-label="Heats Event ${key}" type="number" min="1" max="999" value="${info.heats}"><button type="button" data-remove-event="${key}" title="Quitar Event ${key}">×</button></div>`).join(''):'<div class="program-empty">Sin pruebas. Pulsa «Añadir Event» para comenzar.</div>';
+for(const el of $('programList').querySelectorAll('[data-event-row]')){const v=normalizedEvent(pendingEvents[el.dataset.eventRow]);el.querySelector('[data-program="trial"]').value=v.trial;el.querySelector('[data-program="gender"]').value=v.gender;el.querySelector('[data-program="gender"]').disabled=v.trial==='4×100 m Combinado mixto'}
+}
+function addProgramEvent(){editorSnapshot();const ids=Object.keys(pendingEvents).map(Number).filter(Number.isFinite);let i=1;while(ids.includes(i))i++;pendingEvents[String(i)]={trial:'',gender:'Damas',heats:Math.floor(clamp(model.settings.maxHeats,1,999))};renderProgram();const el=$('programList').querySelector(`[data-event-row="${i}"]`);el?.scrollIntoView?.({block:'nearest'});el?.querySelector('[data-program="trial"]')?.focus()}
+function programChange(e){const row=e.target.closest('[data-event-row]');if(!row)return;const key=row.dataset.eventRow;if(!pendingEvents[key])return;const trial=row.querySelector('[data-program="trial"]').value;const sexEl=row.querySelector('[data-program="gender"]');if(trial==='4×100 m Combinado mixto'){sexEl.value='Mixto';sexEl.disabled=true}else{sexEl.disabled=false;if(sexEl.value==='Mixto')sexEl.value='Damas'}pendingEvents[key]={trial,gender:sexEl.value,heats:Math.floor(clamp(row.querySelector('[data-program="heats"]').value,1,999))};if(key===String(activeEditorEvent)){loadEventEditor(activeEditorEvent)}}
+function presetCardHTML(id,p){const c=p.colors;return `<button type="button" class="preset-card" data-preset="${id}" aria-pressed="false"><span class="preset-name">${safeText(p.name)}</span><span class="preset-row" style="background:${c.oddBg};color:${c.oddText}"><span>1 · NADADOR</span><span>01:23</span></span><span class="preset-row" style="background:${c.alternate};color:${c.evenText}"><span>2 · NADADOR</span><span>01:24</span></span></button>`}
+function renderPresets(){const all=Object.entries(PRESETS).map(([id,p])=>presetCardHTML(id,p)).join('');$('colorPresetGrid').innerHTML=all+`<button type="button" class="preset-card" data-preset="custom" aria-pressed="false"><span class="preset-name">✎ Personalizado</span><span class="preset-row" style="background:#e2ecf7;color:#17354b"><span>A tu gusto</span><span>🎨</span></span><span class="preset-row" style="background:#d1e2f4;color:#17354b"><span>Fondos y textos</span><span>✓</span></span></button>`}
+function colorValues(){return Object.fromEntries(COLOR_FIELDS.map(([id,key])=>[key,$(id).value]))}
+function medalValues(){return Object.fromEntries(MEDAL_FIELDS.map(([id,key])=>[key,$(id).value]))}
+function medalPaletteCardHTML(id,p){return `<button type="button" class="medal-card" data-medal-preset="${id}" aria-pressed="false"><span class="medal-card-name">${safeText(p.name)}</span><span class="medal-card-rows"><span class="medal-card-row" style="background:${p.goldBg};color:${p.goldText}"><span>1°</span><span>ORO</span></span><span class="medal-card-row" style="background:${p.silverBg};color:${p.silverText}"><span>2°</span><span>PLATA</span></span><span class="medal-card-row" style="background:${p.bronzeBg};color:${p.bronzeText}"><span>3°</span><span>BRONCE</span></span></span></button>`}
+function medalStyleCardHTML(id,p){return `<button type="button" class="medal-style-card" data-podium-style="${id}" data-style="${id}" aria-pressed="false"><span class="medal-card-name">${safeText(p.name)}</span><span class="medal-style-demo"><span>3</span><span>NADADOR</span><span class="demo-place">1°</span><span>38.05</span></span><small>${safeText(p.desc)}</small></button>`}
+function renderMedalOptions(){if(!$('medalPaletteGrid')||!$('medalStyleGrid'))return;$('medalPaletteGrid').innerHTML=Object.entries(MEDAL_PALETTES).map(([id,p])=>medalPaletteCardHTML(id,p)).join('')+`<button type="button" class="medal-card" data-medal-preset="custom" aria-pressed="false"><span class="medal-card-name">✎ Personalizado</span><span class="medal-card-rows"><span class="medal-card-row" style="background:#e5edf6;color:#29465e"><span>1°</span><span>Tú eliges</span></span><span class="medal-card-row" style="background:#f0f5fa;color:#29465e"><span>2°</span><span>Fondos</span></span><span class="medal-card-row" style="background:#f6f9fc;color:#29465e"><span>3°</span><span>y textos</span></span></span></button>`;$('medalStyleGrid').innerHTML=Object.entries(PODIUM_STYLES).map(([id,p])=>medalStyleCardHTML(id,p)).join('')}
+function syncMedalButtons(){document.querySelectorAll('#medalPaletteGrid [data-medal-preset]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.medalPreset===($('settingsDialog').dataset.podiumPalette||'custom'))));document.querySelectorAll('#medalStyleGrid [data-podium-style]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.podiumStyle===($('settingsDialog').dataset.podiumStyle||'row'))))}
+function selectMedalPalette(id){if(id!=='custom'&&MEDAL_PALETTES[id])setMedalFields(MEDAL_PALETTES[id]);$('settingsDialog').dataset.podiumPalette=id;syncMedalButtons();updateMedalPreview()}
+function selectPodiumStyle(id){$('settingsDialog').dataset.podiumStyle=PODIUM_STYLES[id]?id:'row';syncMedalButtons();updateMedalPreview()}
+function setMedalFields(c){for(const [id,key] of MEDAL_FIELDS)$(id).value=c?.[key]||DEFAULT_MEDALS[key];updateMedalPreview()}
+function updateMedalPreview(){const c=medalValues();const preview=$('medalPreview');if(!preview)return;preview.dataset.style=$('settingsDialog').dataset.podiumStyle||'row';const root=preview.style;root.setProperty('--medal-gold-bg',c.goldBg);root.setProperty('--medal-gold-text',c.goldText);root.setProperty('--medal-silver-bg',c.silverBg);root.setProperty('--medal-silver-text',c.silverText);root.setProperty('--medal-bronze-bg',c.bronzeBg);root.setProperty('--medal-bronze-text',c.bronzeText);for(const metal of ['gold','silver','bronze']){const el=document.querySelector(`[data-medal-preview="${metal}"]`);if(!el)continue;el.style.background='';el.style.color='';}}
+function setColorFields(c){for(const [id,key] of COLOR_FIELDS)$(id).value=c[key]||'#ffffff'}
+function selectPalette(id){if(id!=='custom'&&PRESETS[id]){setColorFields(PRESETS[id].colors);$('settingsDialog').dataset.theme=PRESETS[id].theme;}
+ $('settingsDialog').dataset.palette=PRESETS[id]?id:'custom';
+ document.querySelectorAll('#colorPresetGrid [data-preset]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.preset===$('settingsDialog').dataset.palette)));
+ updatePalettePreview();updateSizesPreview()}
+function updatePalettePreview(){const c=colorValues();const a=$('paletteSampleOdd'),b=$('paletteSampleEven'),t=$('paletteSampleTop');a.style.background=c.oddBg;a.style.color=c.oddText;b.style.background=c.alternate;b.style.color=c.evenText;t.style.background=c.columns;t.style.color=c.text;
+ $('palettePreview').style.background=c.bg;
+ $('paletteSampleTop').textContent='NATACIÓN · EVENT 1';}
+function initSizeEditor(){const grid=$('textSizesGrid');grid.innerHTML=SIZE_ITEMS.map(([key,label])=>`<div class="size-control"><label for="size-${key}">${label}<output for="size-${key}" id="size-value-${key}">100 %</output></label><input type="range" id="size-${key}" data-text-size="${key}" min="60" max="150" step="5" value="100"></div>`).join('')}
+function updateSizesPreview(){const preview=$('sizesPreview');for(const [key] of SIZE_ITEMS){const el=$('size-'+key);const v=clamp(el?.value||100,60,150);$('size-value-'+key).textContent=v+' %';preview.style.setProperty('--sz-'+key,v/100)}
+ const c=colorValues();preview.style.setProperty('--preview-title',c.titleColor);preview.style.setProperty('--preview-subtitle',c.subtitleColor);preview.style.setProperty('--preview-columns',c.columns);preview.style.setProperty('--preview-row',c.oddBg);preview.style.setProperty('--preview-text',c.oddText);preview.style.background=c.bg;
+}
+function fillSettings(){const s=model.settings;
+ listeningShortcut=null;pendingShortcuts=safeShortcuts(s.shortcuts);drawShortcuts();showShortcutFeedback();
+ document.querySelector(`input[name="clockMode"][value="${s.clockMode==='final'?'final':'live'}"]`).checked=true;
+ document.querySelector(`input[name="rowOrder"][value="${s.rowOrder==='arrival'?'arrival':'lane'}"]`).checked=true;
+ setMedalFields(s.medals);
+ pendingEvents=JSON.parse(JSON.stringify(model.events||{}));$('cfgTitle').value=s.title;$('cfgEvent').value=model.event;$('cfgHeat').value=model.heat;$('cfgDelay').value=s.resultDelay;$('cfgAutoAdvance').checked=s.autoAdvance!==false;loadEventEditor(model.event);$('cfgAspect').value=s.projectionAspect||'auto';$('cfgSafe').value=String(s.projectionSafe??0);for(const [id,key] of [['cfgShowEvent','showEvent'],['cfgShowHeat','showHeat'],['cfgTouch','touch'],['cfgNames','showNames'],['cfgClubs','showClubs'],['cfgCountries','showCountries']])$(id).checked=!!s[key];setColorFields(s.colors);$('settingsDialog').dataset.palette=PRESETS[s.paletteId]?s.paletteId:'custom';selectPalette('custom');$('settingsDialog').dataset.podiumPalette=MEDAL_PALETTES[s.podiumPaletteId]?s.podiumPaletteId:'custom';$('settingsDialog').dataset.podiumStyle=PODIUM_STYLES[s.podiumStyle]?s.podiumStyle:'row';if(PRESETS[s.paletteId]){ // Mostrar el estilo elegido sin alterar retoques guardados.
+ $('settingsDialog').dataset.palette=s.paletteId;document.querySelectorAll('#colorPresetGrid [data-preset]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.preset===s.paletteId)));
+}
+ syncMedalButtons();updateMedalPreview();
+ for(const [key] of SIZE_ITEMS)$('size-'+key).value=clamp(s.textSizes?.[key]??100,60,150);updateSizesPreview();logoPending=s.logo;$('logoPreview').removeAttribute('src');if(logoPending)$('logoPreview').src=logoPending;$('logoInput').value='';$('rosterEditor').innerHTML=rosterHTML();$('editingHeatLabel').textContent=`Event ${model.event} · Heat ${model.heat}`;$('settingsDialog').dataset.theme=s.theme;$('cfgFont').value=fontKey(s.fontMain);$('cfgClockFont').value=clockFontKey(s.fontClock);updateFontPreviews();$('historyCount').textContent=`${model.history.length} serie(s) archivada(s)`}
+// Navegación compacta: cuatro grupos, sin eliminar ninguna configuración original.
+const SETTINGS_GROUPS={
+ competition:[['competition','General'],['program','Pruebas'],['swimmers','Nadadores'],['club','Logo']],
+ display:[['screen','Pantalla'],['modes','Modos']],
+ design:[['colors','Colores'],['fonts','Tipografía'],['sizes','Tamaños']],
+ tools:[['shortcuts','Atajos'],['results','Resultados']]
+};
+const SETTINGS_PAGE_GROUP=Object.fromEntries(Object.entries(SETTINGS_GROUPS).flatMap(([group,pages])=>pages.map(([id])=>[id,group])));
+const settingsLastPage={competition:'competition',display:'screen',design:'colors',tools:'shortcuts'};
+function activateSettingsGroup(group){
+ if(!SETTINGS_GROUPS[group])return;
+ activateSettingsPage(settingsLastPage[group]);
+}
+function activateSettingsPage(id){
+ if(!SETTINGS_PAGE_GROUP[id])id='competition';
+ if(id==='program'){editorSnapshot();renderProgram()}else if(id==='competition'&&activeEditorEvent<1)loadEventEditor(cfgEventNumber());
+ const group=SETTINGS_PAGE_GROUP[id];settingsLastPage[group]=id;
+ for(const tab of document.querySelectorAll('#settingsTabs [data-group]')){
+  const active=tab.dataset.group===group;tab.classList.toggle('active',active);tab.setAttribute('aria-selected',String(active));
+ }
+ $('settingsSubtabs').innerHTML=SETTINGS_GROUPS[group].map(([page,label])=>`<button type="button" class="settings-subtab${page===id?' active':''}" data-page="${page}" role="tab" aria-selected="${page===id}">${label}</button>`).join('');
+ for(const panel of document.querySelectorAll('#settingsDialog .cfg-page'))panel.hidden=panel.dataset.panel!==id;
+}
+function updateFontPreviews(){$('fontSample').style.fontFamily=FONTS[fontKey($('cfgFont').value)];$('clockSample').style.fontFamily=FONTS[fontKey($('cfgClockFont').value)];paintClock($('clockSample'),'01:23.45',$('cfgClockFont').value)}
+function openSettings(){if(DISPLAY)return;fillSettings();activateSettingsPage('competition');$('settingsDialog').showModal()}
+function closeSettings(){listeningShortcut=null;$('settingsDialog').close()}
+function setTheme(theme){selectPalette(theme==='light'?'white':'classic')}
+function readRoster(){return [...$('rosterEditor').querySelectorAll('[data-edit]')].map((el,i)=>({lane:i+1,name:el.querySelector('[data-field="name"]').value.trim(),club:el.querySelector('[data-field="club"]').value.trim(),country:el.querySelector('[data-field="country"]').value.trim().toUpperCase(),active:el.querySelector('[data-field="active"]').checked}))}
+function saveSettings(){editorSnapshot();const event=cfgEventNumber(),heat=Math.floor(clamp($('cfgHeat').value,1,999));const moved=event!==model.event||heat!==model.heat;if(moved&&model.phase!=='ready'&&!confirm('¿Cambiar Event/Heat? Los tiempos de la serie actual se archivarán.'))return;
+const s=model.settings;s.title=$('cfgTitle').value.trim()||'NATACIÓN';s.autoAdvance=$('cfgAutoAdvance').checked;s.resultDelay=Math.floor(clamp($('cfgDelay').value,3,120));s.showEvent=$('cfgShowEvent').checked;s.showHeat=$('cfgShowHeat').checked;s.touch=$('cfgTouch').checked;s.showNames=$('cfgNames').checked;s.showClubs=$('cfgClubs').checked;s.showCountries=$('cfgCountries').checked;s.projectionAspect=$('cfgAspect').value;s.projectionSafe=Number($('cfgSafe').value)||0;s.fontMain=fontKey($('cfgFont').value);s.fontClock=clockFontKey($('cfgClockFont').value);s.logo=logoPending;s.theme=$('settingsDialog').dataset.theme||s.theme;
+s.clockMode=document.querySelector('input[name="clockMode"]:checked')?.value==='final'?'final':'live';
+s.rowOrder=document.querySelector('input[name="rowOrder"]:checked')?.value==='arrival'?'arrival':'lane';
+s.shortcuts=safeShortcuts(pendingShortcuts);
+s.medals=medalValues();
+s.podiumPaletteId=$('settingsDialog').dataset.podiumPalette||'custom';
+s.podiumStyle=$('settingsDialog').dataset.podiumStyle||'row';
+s.colors=colorValues();s.paletteId=$('settingsDialog').dataset.palette||'custom';s.textSizes=Object.fromEntries(SIZE_ITEMS.map(([key])=>[key,Math.floor(clamp($('size-'+key).value,60,150))]));
+const rows=readRoster();rows.forEach((r,i)=>Object.assign(model.lanes[i],{name:r.name,club:r.club,country:r.country,active:r.active}));storeRoster();if(moved){archiveCurrent();model.event=event;model.heat=heat;model.lanes=loadRoster(event,heat);model.phase='ready';model.startMs=null;model.advanceAt=null;}
+model.events=Object.fromEntries(Object.entries(pendingEvents).map(([key,v])=>[key,normalizedEvent(v)]));
+if(model.phase==='running')completeIfReady();
+if(model.phase==='finished'){model.advanceAt=s.autoAdvance?Date.now()+s.resultDelay*1000:null;}
+closeSettings();render();persist();notify('Configuración guardada')}
+function csvCell(value){let t=String(value??'');if(/^[\s]*[=+@-]/.test(t))t="'"+t;return '"'+t.replaceAll('"','""')+'"'}
+function exportCSV(){const heads=['Event','Heat','Prueba','Categoría','Inicio','Pista','Nombre','Club','País','Estado','Llegada','Tiempo'];const result=[heads];const series=[...model.history];if(model.startMs){const place=placements();series.push({event:model.event,heat:model.heat,startedAt:model.startMs,trial:eventInfo(model.event).trial,gender:eventInfo(model.event).gender,lanes:model.lanes.map(l=>({...l,place:place[l.lane]??null}))})}for(const h of series){for(const l of h.lanes){result.push([h.event,h.heat,h.trial??eventInfo(h.event).trial,h.gender??eventInfo(h.event).gender,new Date(h.startedAt).toLocaleString('es-CL'),l.lane,l.name,l.club,l.country,!l.active?'NO PARTICIPA':l.status==='dq'?'DQ':l.status==='done'?'FINALIZÓ':'SIN TIEMPO',l.place??'',l.status==='done'?fmt(l.elapsed):''])}}if(!series.length){notify('Aún no hay resultados');return}const csv='\ufeff'+result.map(r=>r.map(csvCell).join(';')).join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='resultados_natacion_gato_plaza.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000)}
+async function imageToDataURL(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{try{const ratio=Math.min(1,500/Math.max(img.naturalWidth,img.naturalHeight));const canvas=document.createElement('canvas');canvas.width=Math.round(img.naturalWidth*ratio);canvas.height=Math.round(img.naturalHeight*ratio);const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/png'))}catch(e){reject(e)}};img.onerror=()=>reject(new Error('Imagen no válida'));img.src=reader.result};reader.onerror=reject;reader.readAsDataURL(file)})}
+let recentPointerStop=null;
+$('laneRows').addEventListener('pointerdown',e=>{
+ if(DISPLAY||e.button!==0)return;
+ const btn=e.target.closest('button[data-action="stop"]');if(!btn||btn.disabled)return;
+ const n=Number(btn.dataset.lane);
+ recentPointerStop={lane:n,at:performance.now()};
+ stopLane(n,e);
+});
+$('laneRows').addEventListener('click',e=>{
+ const btn=e.target.closest('button[data-action]');if(!btn||DISPLAY)return;
+ const n=Number(btn.dataset.lane),action=btn.dataset.action;
+ if(recentPointerStop&&recentPointerStop.lane===n&&performance.now()-recentPointerStop.at<900&&(action==='stop'||action==='undo')){
+  recentPointerStop=null;return;
+ }
+ if(action==='stop')stopLane(n,e);
+ if(action==='undo')undoLane(n);
+ if(action==='dq')dqLane(n);
+});
+if(!DISPLAY){renderPresets();renderMedalOptions();initSizeEditor();$('startBtn').addEventListener('click',begin);$('nextBtn').addEventListener('click',()=>advance(true));$('resetBtn').addEventListener('click',resetRace);$('restartCompetitionBtn').addEventListener('click',restartCompetition);$('restartFromSettings').addEventListener('click',()=>{if(model.phase==='running')return;closeSettings();restartCompetition()});$('projectBtn').addEventListener('click',openProjector);$('settingsBtn').addEventListener('click',openSettings);$('closeSettings').addEventListener('click',closeSettings);$('cancelSettings').addEventListener('click',closeSettings);$('saveSettings').addEventListener('click',saveSettings);$('settingsTabs').addEventListener('click',e=>{const tab=e.target.closest('[data-group]');if(tab)activateSettingsGroup(tab.dataset.group)});$('settingsSubtabs').addEventListener('click',e=>{const tab=e.target.closest('[data-page]');if(tab)activateSettingsPage(tab.dataset.page)});$('cfgEvent').addEventListener('change',changeEventEditor);$('cfgEvent').addEventListener('blur',()=>{if(cfgEventNumber()!==activeEditorEvent)changeEventEditor()});$('cfgTrial').innerHTML=TRIAL_OPTIONS;$('cfgTrial').addEventListener('change',handleTrialChange);$('cfgSex').addEventListener('change',()=>{updateEventPreview();editorSnapshot()});$('cfgMaxHeats').addEventListener('change',editorSnapshot);$('goProgram').addEventListener('click',()=>activateSettingsPage('program'));$('addProgramEvent').addEventListener('click',addProgramEvent);$('programList').addEventListener('change',programChange);$('programList').addEventListener('input',e=>{if(e.target.matches('input[data-program=heats]'))programChange(e)});$('programList').addEventListener('click',e=>{const b=e.target.closest('[data-remove-event]');if(!b)return;const key=b.dataset.removeEvent;delete pendingEvents[key];if(key===String(activeEditorEvent))activeEditorEvent=0;renderProgram()});$('cfgFont').addEventListener('change',updateFontPreviews);$('cfgClockFont').addEventListener('change',updateFontPreviews);$('colorPresetGrid').addEventListener('click',e=>{const b=e.target.closest('[data-preset]');if(b)selectPalette(b.dataset.preset)});$('medalPaletteGrid').addEventListener('click',e=>{const b=e.target.closest('[data-medal-preset]');if(b)selectMedalPalette(b.dataset.medalPreset)});$('medalStyleGrid').addEventListener('click',e=>{const b=e.target.closest('[data-podium-style]');if(b)selectPodiumStyle(b.dataset.podiumStyle)});
+ for(const [id] of COLOR_FIELDS)$(id).addEventListener('input',()=>{selectPalette('custom');updateSizesPreview()});
+ for(const [id] of MEDAL_FIELDS)$(id).addEventListener('input',()=>{ $('settingsDialog').dataset.podiumPalette='custom'; syncMedalButtons(); updateMedalPreview();});
+ $('textSizesGrid').addEventListener('input',e=>{if(e.target.matches('[data-text-size]'))updateSizesPreview()});
+ $('resetTextSizes').addEventListener('click',()=>{for(const [key] of SIZE_ITEMS)$('size-'+key).value=100;updateSizesPreview()});$('removeLogo').addEventListener('click',()=>{logoPending='';$('logoPreview').removeAttribute('src');$('logoInput').value=''});$('logoInput').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;if(f.size>10*1024*1024){notify('Selecciona una imagen menor de 10 MB');return}try{logoPending=await imageToDataURL(f);$('logoPreview').src=logoPending}catch(ex){notify('No se pudo abrir esa imagen')}});$('exportHistory').addEventListener('click',exportCSV);$('clearHistory').addEventListener('click',()=>{if(confirm('¿Borrar todo el historial de series?')){model.history=[];persist();$('historyCount').textContent='0 series archivadas';notify('Historial borrado')}});
+// Capturar un nuevo atajo antes de que Chrome o el diálogo procesen la tecla.
+document.addEventListener('keydown',e=>{if(listeningShortcut)captureShortcut(e)},true);
+$('shortcutEditor').addEventListener('click',e=>{
+ const bind=e.target.closest('[data-bind-shortcut]');
+ const clear=e.target.closest('[data-clear-shortcut]');
+ if(bind){listeningShortcut=bind.dataset.bindShortcut;showShortcutFeedback('Presiona la tecla deseada (Esc cancela).');drawShortcuts()}
+ else if(clear){pendingShortcuts[clear.dataset.clearShortcut]='';listeningShortcut=null;showShortcutFeedback('Atajo quitado. Pulsa Guardar para aplicar.');drawShortcuts()}
+});
+$('restoreShortcuts').addEventListener('click',()=>{pendingShortcuts={...DEFAULT_SHORTCUTS};listeningShortcut=null;showShortcutFeedback('Atajos predeterminados restaurados. Pulsa Guardar para aplicar.');drawShortcuts()});
+window.addEventListener('keydown',e=>{
+ if($('settingsDialog').open||e.repeat||e.altKey||e.ctrlKey||e.metaKey)return;
+ const tgt=e.target;if(tgt instanceof Element&&(tgt.matches('input,textarea,select')||tgt.isContentEditable))return;
+ const pressed=normalShortcut(e);if(!pressed)return;
+ const shortcuts=safeShortcuts(model.settings.shortcuts);
+ const action=Object.keys(shortcuts).find(k=>shortcuts[k]===pressed);
+ if(!action)return;
+ e.preventDefault();
+ if(action==='start'){begin(e);return}
+ if(action==='undo'){undoLast();return}
+ if(action==='next'){advance(true);return}
+ if(action==='repeat'){resetRace();return}
+ if(action==='event1'){restartCompetition();return}
+ if(action.startsWith('stop')){stopLane(Number(action.slice(4)),e);return}
+ if(action.startsWith('dq')){dqLane(Number(action.slice(2)));return}
+});
+}else{document.addEventListener('click',()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.().catch(()=>{})});window.addEventListener('load',()=>{try{window.opener?.postMessage({kind:'gato-request'},'*')}catch(e){}})}
+// Recalcula la densidad al mover la ventana a otro monitor o cambiar su resolución.
+window.addEventListener('resize',fitBoard,{passive:true});
+if(!DISPLAY&&typeof ResizeObserver!=='undefined'){const resizeBoard=new ResizeObserver(()=>fitBoard());resizeBoard.observe($('board'));}
+// Restauración tras cerrar/recargar, sin reiniciar cronómetros ya iniciados.
+render();if(DISPLAY){try{window.opener?.postMessage({kind:'gato-request'},'*')}catch(e){}}requestAnimationFrame(clockLoop);
+})();
+</script>
+</body>
+</html>

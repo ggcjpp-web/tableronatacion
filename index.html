@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Tablero de natación V7.24 · Por Gato Plaza</title>
+<title>Tablero de natación V7.26 · Por Gato Plaza</title>
 <style>
 :root{--bg:#07111f;--text:#f0f7ff;--alternate:#10243a;--columns:#16385b;--title:#ecf5ff;--subtitle:#8dc5ee;--accent:#ffd64d;--finished:#61e4d4;--red:#ff747e;--line:rgba(159,189,223,.15);--shadow:0 20px 65px rgba(0,0,0,.3);color-scheme:dark}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overflow-x:hidden}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.4}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}button:active:not(:disabled){transform:translateY(1px)}
@@ -685,6 +685,33 @@ html,body{overscroll-behavior:none}
 .btn-settings .gear-icon{width:19px;height:19px;display:block}
 .dialog-app-icon .gear-icon{width:18px;height:18px;display:block}
 @media(max-width:570px){.screen-board .lane-row .lane-action.lane-command{border-radius:8px;height:clamp(30px,calc(var(--bh,6px)*7),54px)!important}}
+
+/* V7.25 · Herramientas extra exclusivamente para PC (ratón / trackpad).
+   En móviles permanece el comando táctil único con doble toque y pulsación larga. */
+.screen-board .lane-row .desktop-lane-buttons{display:none;align-items:center;justify-content:center;gap:5px;flex:0 0 auto;min-width:0}
+.screen-board .lane-row .pc-lane-action{
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  min-width:34px;height:clamp(27px,calc(var(--bh,7px)*5),38px);
+  padding:0 7px;border-radius:8px;border:1px solid var(--line);
+  background:rgba(118,151,185,.14);color:var(--text);
+  font:800 12px var(--board-font,system-ui);line-height:1;cursor:pointer;
+  touch-action:manipulation;
+}
+.screen-board .lane-row .pc-lane-dq{border-color:rgba(255,116,126,.48);color:var(--red)}
+.screen-board .lane-row .pc-lane-dq.is-dq{background:var(--red);color:#16131a}
+.screen-board .lane-row .pc-lane-undo{font-size:20px;color:var(--subtitle)}
+.screen-board .lane-row .pc-lane-action:disabled{opacity:.24;cursor:default}
+.screen-board .lane-row .pc-lane-action:not(:disabled):hover{filter:brightness(1.3);background:rgba(120,160,200,.23)}
+.screen-board .lane-row .pc-lane-action:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (hover:hover) and (pointer:fine){
+  body:not(.display-only) .screen-board .lane-row .desktop-lane-buttons{display:flex}
+  body:not(.display-only) .screen-board .lane-row .lane-command{width:auto;flex:1 1 44px}
+}
+@media (max-width:850px) and (hover:hover) and (pointer:fine){
+  .screen-board .lane-row .desktop-lane-buttons{gap:3px}
+  .screen-board .lane-row .pc-lane-action{min-width:27px;padding:0 4px;font-size:11px}
+  .screen-board .lane-row .pc-lane-undo{font-size:17px}
+}
 </style>
 </head>
 <body>
@@ -699,7 +726,7 @@ html,body{overscroll-behavior:none}
     <div class="toolbar-right">
       <button id="nextBtn" class="btn btn-next" type="button" title="Avanzar a la siguiente serie"><span>Avanzar</span><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
       <button id="resetBtn" class="btn btn-danger" type="button" title="Repetir esta serie"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11a9 9 0 1 1 2.9 6.5"/><path d="M3 4v7h7"/></svg><span>Repetir</span></button>
-      <button id="restartCompetitionBtn" class="btn btn-reset-event" type="button" title="Volver a Event 1 y borrar el historial de resultados"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg><span>Event 1</span></button>
+      <button id="restartCompetitionBtn" class="btn btn-reset-event" type="button" title="Reiniciar todo: borrar resultados, programación, nadadores y configuración personalizada"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg><span>Reiniciar</span></button>
       <button id="projectBtn" class="btn btn-project" type="button" title="Abrir proyección" aria-label="Abrir proyección"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
       <button id="settingsBtn" class="btn btn-settings" type="button" title="Configuración" aria-label="Configuración"><svg class="tool-icon gear-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M10.03,4.66 L10.42,4.57 L10.07,2.09 L13.93,2.09 L13.58,4.57 L13.97,4.66 L15.80,5.42 L16.14,5.63 L17.65,3.63 L20.37,6.35 L18.37,7.86 L18.58,8.20 L19.34,10.03 L19.43,10.42 L21.91,10.07 L21.91,13.93 L19.43,13.58 L19.34,13.97 L18.58,15.80 L18.37,16.14 L20.37,17.65 L17.65,20.37 L16.14,18.37 L15.80,18.58 L13.97,19.34 L13.58,19.43 L13.93,21.91 L10.07,21.91 L10.42,19.43 L10.03,19.34 L8.20,18.58 L7.86,18.37 L6.35,20.37 L3.63,17.65 L5.63,16.14 L5.42,15.80 L4.66,13.97 L4.57,13.58 L2.09,13.93 L2.09,10.07 L4.57,10.42 L4.66,10.03 L5.42,8.20 L5.63,7.86 L3.63,6.35 L6.35,3.63 L7.86,5.63 L8.20,5.42Z M 12,8.65 A 3.35,3.35 0 1 0 12,15.35 A 3.35,3.35 0 1 0 12,8.65 Z"/></svg></button>
     </div>
@@ -894,12 +921,12 @@ html,body{overscroll-behavior:none}
           <p class="shortcut-hint">Haz clic en un atajo y presiona la tecla o combinación deseada. Admite Mayús y las teclas numéricas. «×» deja una función sin atajo. Los cambios se aplican al pulsar Guardar.</p>
           <div id="shortcutEditor"></div>
           <div id="shortcutFeedback" class="shortcut-feedback" role="status" aria-live="polite"></div>
-          <p class="shortcut-hint">Las teclas 1–8 del teclado numérico funcionan igual que las de la fila superior. Se impiden asignaciones duplicadas y combinaciones reservadas del navegador. Los comandos Avanzar, Repetir y Event 1 permanecen bloqueados durante una carrera.</p>
+          <p class="shortcut-hint">Las teclas 1–8 del teclado numérico funcionan igual que las de la fila superior. Se impiden asignaciones duplicadas y combinaciones reservadas del navegador. Los comandos Avanzar, Repetir y Reiniciar permanecen bloqueados durante una carrera.</p>
         </section>
         <section class="cfg-page" data-panel="results" role="tabpanel" hidden>
           <h3>Resultados y registros</h3>
-          <div class="row-inline"><button id="exportHistory" type="button" class="cfg-btn">↓ Exportar CSV</button><button id="clearHistory" type="button" class="cfg-btn red">Borrar historial</button><button id="restartFromSettings" type="button" class="cfg-btn red">⟲ Reiniciar Event 1 y borrar historial</button></div>
-          <p class="small-info">Reiniciar vuelve a Event 1 / Heat 1, pone los cronómetros en cero y borra definitivamente todo el historial de resultados. Conserva la programación, los nadadores y las preferencias. Exporta el CSV antes si deseas guardar los resultados.</p>
+          <div class="row-inline"><button id="exportHistory" type="button" class="cfg-btn">↓ Exportar CSV</button><button id="clearHistory" type="button" class="cfg-btn red">Borrar historial</button><button id="restartFromSettings" type="button" class="cfg-btn red">⟲ Reiniciar</button></div>
+          <p class="small-info">Reiniciar restaura los valores iniciales del tablero (colores, modos, tipografías, tamaños, atajos y logo) y vuelve a Event 1 / Heat 1. Elimina definitivamente los tiempos, el historial, la programación de pruebas y todas las inscripciones de nadadores, clubes y países. Exporta el CSV antes de reiniciar si deseas guardar los resultados.</p>
           <p id="historyCount" class="small-info"></p>
 
         </section>
@@ -940,7 +967,7 @@ const clockFontKey=v=>(v==='dragones-svg'||v==='dragones-svg-full')?v:fontKey(v)
 const $=id=>document.getElementById(id);
 const clamp=(v,lo,hi)=>Math.min(hi,Math.max(lo,Number.isFinite(Number(v))?Number(v):lo));
 const DEFAULT_SHORTCUTS={start:'Enter',undo:'Backspace',next:'',repeat:'',event1:'',...Object.fromEntries(Array.from({length:8},(_,i)=>['stop'+(i+1),'Digit'+(i+1)])),...Object.fromEntries(Array.from({length:8},(_,i)=>['dq'+(i+1),'Shift+Digit'+(i+1)]))};
-const SHORTCUT_GROUPS=[['Carrera y navegación',[['start','Iniciar carrera'],['undo','Deshacer última llegada'],['next','Avanzar'],['repeat','Repetir Heat'],['event1','Volver a Event 1']]],['Detener pistas',Array.from({length:8},(_,i)=>['stop'+(i+1),'Pista '+(i+1)])],['Descalificar',Array.from({length:8},(_,i)=>['dq'+(i+1),'Descalificar pista '+(i+1)])]];
+const SHORTCUT_GROUPS=[['Carrera y navegación',[['start','Iniciar carrera'],['undo','Deshacer última llegada'],['next','Avanzar'],['repeat','Repetir Heat'],['event1','Reiniciar tablero']]],['Detener pistas',Array.from({length:8},(_,i)=>['stop'+(i+1),'Pista '+(i+1)])],['Descalificar',Array.from({length:8},(_,i)=>['dq'+(i+1),'Descalificar pista '+(i+1)])]];
 function normalShortcut(ev){
  if(ev.altKey||ev.ctrlKey||ev.metaKey)return null;
  let code=ev.code||'';
@@ -1147,7 +1174,8 @@ function mainVars(){const s=model.settings,c=s.colors;const d=document.documentE
  '--medal-gold-bg':s.medals?.goldBg||DEFAULT_MEDALS.goldBg,'--medal-gold-text':s.medals?.goldText||DEFAULT_MEDALS.goldText,
  '--medal-silver-bg':s.medals?.silverBg||DEFAULT_MEDALS.silverBg,'--medal-silver-text':s.medals?.silverText||DEFAULT_MEDALS.silverText,
  '--medal-bronze-bg':s.medals?.bronzeBg||DEFAULT_MEDALS.bronzeBg,'--medal-bronze-text':s.medals?.bronzeText||DEFAULT_MEDALS.bronzeText}).forEach(([k,v])=>d.setProperty(k,v));document.documentElement.style.colorScheme=s.theme;
-const parts=['minmax(45px,.55fr)'];if(s.showNames)parts.push('minmax(75px,2.4fr)');if(s.showClubs||s.showCountries)parts.push('minmax(75px,1.4fr)');parts.push('minmax(50px,.75fr)','minmax(114px,1.95fr)');if(!DISPLAY)parts.push(s.touch?'minmax(96px,1.15fr)':'minmax(1px,.05fr)');d.setProperty('--board-cols',parts.join(' '));
+const pcPointer=!!window.matchMedia?.('(hover:hover) and (pointer:fine)').matches;
+const parts=['minmax(45px,.55fr)'];if(s.showNames)parts.push('minmax(75px,2.4fr)');if(s.showClubs||s.showCountries)parts.push('minmax(75px,1.4fr)');parts.push('minmax(50px,.75fr)','minmax(114px,1.95fr)');if(!DISPLAY)parts.push(pcPointer?(s.touch?'minmax(142px,1.5fr)':'minmax(92px,1fr)'):(s.touch?'minmax(96px,1.15fr)':'minmax(1px,.05fr)'));d.setProperty('--board-cols',parts.join(' '));
 // Construir columnas compactas según las celdas realmente visibles.
 // Si se muestran nombres, el club aparece debajo del nadador; si los nombres
 // están ocultos, el club ocupa su propia columna. No reservar huecos vacíos.
@@ -1155,7 +1183,7 @@ const hasIdentity=!!(s.showNames||s.showClubs||s.showCountries);
 const compactParts=['minmax(22px,.48fr)'];
 if(hasIdentity)compactParts.push('minmax(42px,1.55fr)');
 compactParts.push('minmax(30px,.78fr)','minmax(105px,2.3fr)');
-if(!DISPLAY)compactParts.push(s.touch?'minmax(52px,.78fr)':'minmax(1px,.05fr)');
+if(!DISPLAY)compactParts.push(pcPointer?(s.touch?'minmax(112px,1.55fr)':'minmax(65px,.95fr)'):(s.touch?'minmax(52px,.78fr)':'minmax(1px,.05fr)'));
 d.setProperty('--board-cols-compact',compactParts.join(' '));
 d.setProperty('--mobile-cols',compactParts.join(' '));
 d.setProperty('--projection-compact-cols',compactParts.join(' '));
@@ -1206,6 +1234,10 @@ for(const l of visibleLanes){const active=l.active;const classStr=l.status==='dq
  <div class="time-col" data-clock="${l.lane}">${time}</div>
  ${!DISPLAY?`<div class="control-col">
  ${s.touch?`<button type="button" class="lane-action touch-stop lane-command lane-command-${l.status}" data-action="lane" data-lane="${l.lane}" ${!active||(l.status==='pending'&&model.phase!=='running')?'disabled':''} title="${l.status==='pending'?'Detener pista '+l.lane:'Pista '+l.lane+': doble toque para '+(l.status==='dq'?'quitar descalificación':'descalificar')+'; mantener 3 segundos para reiniciar'}" aria-label="Pista ${l.lane}: ${l.status==='pending'?'registrar llegada':l.status==='dq'?'descalificada':'llegada registrada'}">${l.lane}</button>`:''}
+ <div class="desktop-lane-buttons" aria-label="Controles de escritorio para la pista ${l.lane}">
+  <button type="button" class="pc-lane-action pc-lane-dq${l.status==='dq'?' is-dq':''}" data-action="pc-dq" data-lane="${l.lane}" ${!active||!['done','dq'].includes(l.status)?'disabled':''} title="${l.status==='dq'?'Quitar descalificación':'Descalificar'} pista ${l.lane}" aria-label="${l.status==='dq'?'Quitar descalificación de':'Descalificar'} pista ${l.lane}">DQ</button>
+  <button type="button" class="pc-lane-action pc-lane-undo" data-action="pc-undo" data-lane="${l.lane}" ${!active||!['done','dq'].includes(l.status)?'disabled':''} title="Deshacer llegada de la pista ${l.lane} (solicita confirmación)" aria-label="Deshacer llegada de la pista ${l.lane}">↶</button>
+ </div>
  </div>`:''}</div>`;
 }
 $('laneRows').innerHTML=html;
@@ -1278,14 +1310,24 @@ function advance(manual=true){if(DISPLAY||model.phase==='running')return;storeRo
 function restartCompetition(){
  if(DISPLAY||model.phase==='running')return false;
  const count=model.history.length;
- const prompt=`¿Reiniciar desde Event 1 / Heat 1?\n\nSe eliminarán definitivamente las ${count} serie(s) archivada(s) y los tiempos actuales.\n\nSi quieres conservar los resultados, expórtalos a CSV antes de continuar.\n\nLa programación, los nadadores y las preferencias se conservarán.`;
+ const eventCount=Object.keys(model.events||{}).length;
+ const rosterCount=Object.keys(model.rosters||{}).length;
+ const prompt=`¿Reiniciar todo el tablero a su configuración predeterminada?\n\nSe eliminarán definitivamente:\n• ${count} serie(s) archivada(s) y todos los tiempos actuales.\n• ${eventCount} Event(s) programado(s), con sus pruebas y Heats.\n• Los nadadores, clubes y países, incluidos los registros guardados de ${rosterCount} serie(s).\n• Todas las personalizaciones (título, logo, colores, tipografías, tamaños, modos y atajos de teclado).\n\nSe volverá a Event 1 / Heat 1 con ocho pistas vacías y el programa sin asignar.\n\nEsta acción no se puede deshacer. Exporta los resultados a CSV antes de continuar.`;
  if(!confirm(prompt))return false;
- storeRoster();
- model.history=[]; // El reinicio empieza un historial completamente nuevo.
- model.event=1;model.heat=1;model.lanes=loadRoster(1,1);
- model.phase='ready';model.startMs=null;model.advanceAt=null;
+ // Reinicio de fábrica: descartar el estado completo anterior, sin almacenar
+ // previamente los inscritos y sin recuperar los rosters archivados.
+ model=fresh();
+ model.events={}; // Programación vacía, como solicita el usuario.
+ pendingEvents={};
+ pendingShortcuts={...DEFAULT_SHORTCUTS};
+ activeEditorEvent=1;
+ listeningShortcut=null;
+ logoPending='';
+ lastMessage='';
  if($('historyCount'))$('historyCount').textContent='0 serie(s) archivada(s)';
- render();persist();notify('Reinicio completado: historial borrado · Event 1 / Heat 1');
+ render();
+ persist(); // Sobrescribe el estado anterior en localStorage y sincroniza la proyección.
+ notify('Tablero reiniciado a su configuración predeterminada');
  return true;
 }
 function resetRace(){if(DISPLAY||model.phase==='running')return;if(model.phase!=='ready'&&!confirm('¿Repetir esta serie? Se borrarán los tiempos de esta serie.'))return;model.lanes=model.lanes.map((l,i)=>({...l,status:'pending',elapsed:null,order:null,restore:null,lane:i+1}));model.phase='ready';model.startMs=null;model.advanceAt=null;render();persist()}
@@ -1412,6 +1454,18 @@ closeSettings();render();persist();notify('Configuración guardada')}
 function csvCell(value){let t=String(value??'');if(/^[\s]*[=+@-]/.test(t))t="'"+t;return '"'+t.replaceAll('"','""')+'"'}
 function exportCSV(){const heads=['Event','Heat','Prueba','Categoría','Inicio','Pista','Nombre','Club','País','Estado','Llegada','Tiempo'];const result=[heads];const series=[...model.history];if(model.startMs){const place=placements();series.push({event:model.event,heat:model.heat,startedAt:model.startMs,trial:eventInfo(model.event).trial,gender:eventInfo(model.event).gender,lanes:model.lanes.map(l=>({...l,place:place[l.lane]??null}))})}for(const h of series){for(const l of h.lanes){result.push([h.event,h.heat,h.trial??eventInfo(h.event).trial,h.gender??eventInfo(h.event).gender,new Date(h.startedAt).toLocaleString('es-CL'),l.lane,l.name,l.club,l.country,!l.active?'NO PARTICIPA':l.status==='dq'?'DQ':l.status==='done'?'FINALIZÓ':'SIN TIEMPO',l.place??'',l.status==='done'?fmt(l.elapsed):''])}}if(!series.length){notify('Aún no hay resultados');return}const csv='\ufeff'+result.map(r=>r.map(csvCell).join(';')).join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='resultados_natacion_gato_plaza.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000)}
 async function imageToDataURL(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{try{const ratio=Math.min(1,500/Math.max(img.naturalWidth,img.naturalHeight));const canvas=document.createElement('canvas');canvas.width=Math.round(img.naturalWidth*ratio);canvas.height=Math.round(img.naturalHeight*ratio);const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/png'))}catch(e){reject(e)}};img.onerror=()=>reject(new Error('Imagen no válida'));img.src=reader.result};reader.onerror=reject;reader.readAsDataURL(file)})}
+// Controles independientes para PC: DQ y deshacer solo la pista pulsada.
+// En móviles los botones se ocultan mediante media query y no participan
+// en el reconocimiento de gestos de doble toque / pulsación sostenida.
+$('laneRows').addEventListener('click',e=>{
+ if(DISPLAY)return;
+ const btn=e.target.closest('button[data-action="pc-dq"],button[data-action="pc-undo"]');
+ if(!btn||btn.disabled)return;
+ const n=Number(btn.dataset.lane);
+ if(!Number.isInteger(n)||n<1||n>8)return;
+ if(btn.dataset.action==='pc-dq')dqLane(n);
+ else resetLane(n); // requiere confirmación para borrar el tiempo / DQ.
+});
 // Un solo comando por pista: toque para registrar la llegada; dos toques CORTOS
 // posteriores para DQ, o pulsación sostenida (3 s) para solicitar reinicio.
 // Los clicks de compatibilidad se neutralizan para evitar dos pistas por un toque.

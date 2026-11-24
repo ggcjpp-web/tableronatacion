@@ -4,7 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#081421">
-<title>Tablero de natación V7.19 · Por Gato Plaza</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Tablero de natación V7.20 · Por Gato Plaza</title>
 <style>
 :root{--bg:#07111f;--text:#f0f7ff;--alternate:#10243a;--columns:#16385b;--title:#ecf5ff;--subtitle:#8dc5ee;--accent:#ffd64d;--finished:#61e4d4;--red:#ff747e;--line:rgba(159,189,223,.15);--shadow:0 20px 65px rgba(0,0,0,.3);color-scheme:dark}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overflow-x:hidden}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.4}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}button:active:not(:disabled){transform:translateY(1px)}
@@ -630,6 +633,38 @@ body.board-compact .screen-board[data-row-order="arrival"] .lane-row{grid-auto-f
  #settingsDialog .settings-pages>.cfg-page{padding:12px 12px 16px}
 }
 @media(max-width:390px){#settingsDialog .settings-group-name strong{font-size:10px}#settingsDialog .settings-subtab{padding:6px 7px}}
+
+/* V7.20 · Móvil a tamaño de pantalla y sin selección accidental de textos */
+html,body,.app-shell,.screen-board,.operator-toolbar,#settingsDialog{
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+  -webkit-tap-highlight-color:transparent;
+}
+input,textarea,select,[contenteditable="true"]{
+  -webkit-user-select:text!important;
+  user-select:text!important;
+  -webkit-touch-callout:default;
+}
+button,[role="button"]{touch-action:manipulation}
+html,body{overscroll-behavior:none}
+#projectBtn{width:42px;min-width:42px;min-height:42px;padding:0;gap:0;flex:none}
+#projectBtn .tool-icon{width:20px;height:20px}
+@media(max-width:750px){
+  html,body{width:100%;height:100%;height:100dvh;overflow:hidden}
+  .app-shell{
+    box-sizing:border-box;width:100%;height:100%;height:100dvh;min-height:0;
+    padding:max(4px,env(safe-area-inset-top)) max(4px,env(safe-area-inset-right)) max(4px,env(safe-area-inset-bottom)) max(4px,env(safe-area-inset-left));
+    overflow:hidden;
+  }
+  .screen-board{min-height:0;min-width:0;overflow:hidden}
+  #projectBtn{width:40px;min-width:40px;min-height:40px;padding:0}
+  #projectBtn .tool-icon{width:19px;height:19px}
+  body.display-only .app-shell{padding:0}
+}
+
+/* V7.21: impedir eventos táctiles duplicados y zoom accidental en botones de pista */
+#laneRows .lane-action{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 </style>
 </head>
 <body>
@@ -645,7 +680,7 @@ body.board-compact .screen-board[data-row-order="arrival"] .lane-row{grid-auto-f
       <button id="nextBtn" class="btn btn-next" type="button" title="Avanzar a la siguiente serie"><span>Avanzar</span><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></button>
       <button id="resetBtn" class="btn btn-danger" type="button" title="Repetir esta serie"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11a9 9 0 1 1 2.9 6.5"/><path d="M3 4v7h7"/></svg><span>Repetir</span></button>
       <button id="restartCompetitionBtn" class="btn btn-reset-event" type="button" title="Volver al primer Event y Heat"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg><span>Event 1</span></button>
-      <button id="projectBtn" class="btn btn-project" type="button" title="Abrir en la segunda pantalla"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span>Pantalla</span></button>
+      <button id="projectBtn" class="btn btn-project" type="button" title="Abrir proyección" aria-label="Abrir proyección"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
       <button id="settingsBtn" class="btn btn-settings" type="button" title="Configuración" aria-label="Configuración"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2 2-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1 1.55V21h-2.8v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06-2-2 .06-.06A1.7 1.7 0 0 0 7.52 15 1.7 1.7 0 0 0 6 14H5v-2.8h1a1.7 1.7 0 0 0 1.52-1 1.7 1.7 0 0 0-.34-1.88l-.06-.06 2-2 .06.06a1.7 1.7 0 0 0 1.88.34 1.7 1.7 0 0 0 1-1.55V4h2.8v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.88-.34l.06-.06 2 2-.06.06A1.7 1.7 0 0 0 19.4 10a1.7 1.7 0 0 0 1.55 1H21v2.8h-.09A1.7 1.7 0 0 0 19.4 15Z"/></svg></button>
     </div>
   </header>
@@ -1198,7 +1233,16 @@ function stopLane(n,ev){
 }
 function dqLane(n){if(DISPLAY)return;const l=model.lanes[n-1];if(!l?.active)return;if(l.status==='dq'){if(l.restore){l.status=l.restore.status;l.elapsed=l.restore.elapsed;l.order=l.restore.order}else{l.status='pending';l.elapsed=null;l.order=null}l.restore=null;if(model.phase==='finished'&&!resolved()){model.phase='running';model.advanceAt=null}}else{l.restore={status:l.status,elapsed:l.elapsed,order:l.order};l.status='dq';l.order=null;completeIfReady()}
 render();persist()}
-function undoLane(n){if(DISPLAY)return;const l=model.lanes[n-1];if(!l||l.status!=='done')return;l.status='pending';l.elapsed=null;l.order=null;if(model.phase==='finished'){model.phase='running';model.advanceAt=null}render();persist()}
+function undoLane(n){
+ if(DISPLAY)return;
+ const l=model.lanes[n-1];
+ if(!l||l.status!=='done')return;
+ const tiempo=fmt(l.elapsed);
+ if(!confirm(`¿Deshacer la llegada de la pista ${n}?\n\nSe quitará el tiempo ${tiempo} y se recalcularán las posiciones. Esta acción no se puede recuperar automáticamente.`))return;
+ l.status='pending';l.elapsed=null;l.order=null;
+ if(model.phase==='finished'){model.phase='running';model.advanceAt=null}
+ render();persist();
+}
 function undoLast(){const list=model.lanes.filter(l=>l.status==='done').sort((a,b)=>(b.order||0)-(a.order||0));if(list.length)undoLane(list[0].lane)}
 const rosterKey=(event,heat)=>`${event}_${heat}`;
 function takeRoster(){return model.lanes.map(l=>({name:l.name,club:l.club,country:l.country,active:l.active}))}
@@ -1210,6 +1254,37 @@ function restartCompetition(){if(DISPLAY||model.phase==='running')return;if(!con
 storeRoster();model.event=1;model.heat=1;model.lanes=loadRoster(1,1);model.phase='ready';model.startMs=null;model.advanceAt=null;render();persist();notify('Competencia reiniciada: Event 1 · Heat 1')}
 function resetRace(){if(DISPLAY||model.phase==='running')return;if(model.phase!=='ready'&&!confirm('¿Repetir esta serie? Se borrarán los tiempos de esta serie.'))return;model.lanes=model.lanes.map((l,i)=>({...l,status:'pending',elapsed:null,order:null,restore:null,lane:i+1}));model.phase='ready';model.startMs=null;model.advanceAt=null;render();persist()}
 function openProjector(){const target=location.href.split('#')[0]+'#pantalla';projector=window.open(target,'gato_plaza_proyeccion','width=1400,height=850,menubar=no,toolbar=no,location=no,status=no,scrollbars=no,resizable=yes');if(!projector){notify('Permite ventanas emergentes para abrir la proyección');return}projector.focus();setTimeout(broadcast,350);setTimeout(broadcast,1000)}
+// El navegador exige una acción del usuario para entrar en pantalla completa.
+// En móviles el botón con monitor activa ese modo; en PC abre la proyección.
+function isMobileScreen(){
+  return /Android|iPhone|iPod|Mobile/i.test(navigator.userAgent)||
+    (window.matchMedia&&matchMedia('(pointer: coarse) and (max-width: 1024px)').matches);
+}
+function updateScreenControl(){
+  if(DISPLAY)return;
+  const btn=$('projectBtn');if(!btn)return;
+  const mobile=isMobileScreen(),full=!!document.fullscreenElement;
+  const title=mobile?(full?'Salir de pantalla completa':'Pantalla completa'):'Abrir proyección';
+  btn.title=title;btn.setAttribute('aria-label',title);
+  btn.setAttribute('aria-pressed',String(mobile&&full));
+}
+async function handleScreenControl(){
+  if(!isMobileScreen()){openProjector();return;}
+  try{
+    if(document.fullscreenElement){
+      if(document.exitFullscreen)await document.exitFullscreen();
+    }else if(document.documentElement.requestFullscreen){
+      await document.documentElement.requestFullscreen({navigationUI:'hide'});
+    }else{
+      notify('Tu navegador no permite pantalla completa desde una página. Puedes añadir el tablero a la pantalla de inicio.');
+    }
+  }catch(err){
+    notify('No fue posible activar pantalla completa. En algunos móviles debes abrir el tablero desde la pantalla de inicio.');
+  }finally{
+    updateScreenControl();requestAnimationFrame(fitBoard);
+  }
+}
+
 const rosterHTML=()=>model.lanes.map(l=>`<div class="roster-card" data-edit="${l.lane}"><div class="row-title"><span>PISTA ${l.lane}</span><label class="toggle"><input data-field="active" type="checkbox" ${l.active?'checked':''}> Participa</label></div><div class="roster-fields"><input data-field="name" value="${safeText(l.name)}" maxlength="55" placeholder="Nombre" aria-label="Nombre pista ${l.lane}"><input data-field="club" value="${safeText(l.club)}" maxlength="35" placeholder="Club" aria-label="Club pista ${l.lane}"><input data-field="country" value="${safeText(l.country)}" maxlength="12" placeholder="País" aria-label="País pista ${l.lane}"></div></div>`).join('');
 function cfgEventNumber(){return Math.floor(clamp($('cfgEvent').value,1,9999))}
 function editorSnapshot(){if(activeEditorEvent<1)return;const id=String(activeEditorEvent);const trial=$('cfgTrial').value;const sex=trial==='4×100 m Combinado mixto'?'Mixto':$('cfgSex').value;pendingEvents[id]={trial,gender:sex,heats:Math.max(Math.floor(clamp($('cfgHeat').value,1,999)),Math.floor(clamp($('cfgMaxHeats').value,1,999)))}}
@@ -1301,25 +1376,52 @@ closeSettings();render();persist();notify('Configuración guardada')}
 function csvCell(value){let t=String(value??'');if(/^[\s]*[=+@-]/.test(t))t="'"+t;return '"'+t.replaceAll('"','""')+'"'}
 function exportCSV(){const heads=['Event','Heat','Prueba','Categoría','Inicio','Pista','Nombre','Club','País','Estado','Llegada','Tiempo'];const result=[heads];const series=[...model.history];if(model.startMs){const place=placements();series.push({event:model.event,heat:model.heat,startedAt:model.startMs,trial:eventInfo(model.event).trial,gender:eventInfo(model.event).gender,lanes:model.lanes.map(l=>({...l,place:place[l.lane]??null}))})}for(const h of series){for(const l of h.lanes){result.push([h.event,h.heat,h.trial??eventInfo(h.event).trial,h.gender??eventInfo(h.event).gender,new Date(h.startedAt).toLocaleString('es-CL'),l.lane,l.name,l.club,l.country,!l.active?'NO PARTICIPA':l.status==='dq'?'DQ':l.status==='done'?'FINALIZÓ':'SIN TIEMPO',l.place??'',l.status==='done'?fmt(l.elapsed):''])}}if(!series.length){notify('Aún no hay resultados');return}const csv='\ufeff'+result.map(r=>r.map(csvCell).join(';')).join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='resultados_natacion_gato_plaza.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000)}
 async function imageToDataURL(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{try{const ratio=Math.min(1,500/Math.max(img.naturalWidth,img.naturalHeight));const canvas=document.createElement('canvas');canvas.width=Math.round(img.naturalWidth*ratio);canvas.height=Math.round(img.naturalHeight*ratio);const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/png'))}catch(e){reject(e)}};img.onerror=()=>reject(new Error('Imagen no válida'));img.src=reader.result};reader.onerror=reject;reader.readAsDataURL(file)})}
-let recentPointerStop=null;
+// Una pulsación táctil o de ratón genera pointerdown y después un click.
+// Capturamos la acción una sola vez en pointerdown, ANTES de que las filas se
+// reordenen. El click posterior se ignora siempre, incluso si por el cambio
+// de posición cae sobre un botón de otra pista ("ghost click").
+// Los clicks de teclado/accesibilidad (detail === 0) siguen funcionando.
+function handleLaneButton(btn,ev){
+ if(DISPLAY||!btn||btn.disabled)return;
+ const n=Number(btn.dataset.lane),action=btn.dataset.action;
+ if(!Number.isInteger(n)||n<1||n>8)return;
+ if(action==='stop')stopLane(n,ev);
+ else if(action==='undo')undoLane(n);
+ else if(action==='dq')dqLane(n);
+}
+// Puede ocurrir que, tras un reordenamiento, el click de compatibilidad
+// apunte a OTRA pista. Interceptarlo en captura del documento por pointerId
+// impide que active cualquier otro control, incluso fuera de laneRows.
+const handledLanePointers=new Map();
+document.addEventListener('click',e=>{
+ const at=handledLanePointers.get(e.pointerId);
+ if(at!==undefined&&performance.now()-at<2000){
+  handledLanePointers.delete(e.pointerId);
+  e.preventDefault();e.stopImmediatePropagation();
+ }
+},true);
 $('laneRows').addEventListener('pointerdown',e=>{
  if(DISPLAY||e.button!==0)return;
- const btn=e.target.closest('button[data-action="stop"]');if(!btn||btn.disabled)return;
- const n=Number(btn.dataset.lane);
- recentPointerStop={lane:n,at:performance.now()};
- stopLane(n,e);
+ const btn=e.target.closest('button[data-action]');
+ if(!btn||btn.disabled)return;
+ // Registrar el identificador ANTES de alterar la pantalla o el DOM.
+ const pointerAt=performance.now();
+ for(const [id,at] of handledLanePointers){if(pointerAt-at>2500)handledLanePointers.delete(id)}
+ handledLanePointers.set(e.pointerId,pointerAt);
+ // Evita efectos secundarios de la pulsación nativa (selección, foco y
+ // clicks de compatibilidad en los navegadores que los cancelan).
+ e.preventDefault();
+ handleLaneButton(btn,e);
 });
 $('laneRows').addEventListener('click',e=>{
- const btn=e.target.closest('button[data-action]');if(!btn||DISPLAY)return;
- const n=Number(btn.dataset.lane),action=btn.dataset.action;
- if(recentPointerStop&&recentPointerStop.lane===n&&performance.now()-recentPointerStop.at<900&&(action==='stop'||action==='undo')){
-  recentPointerStop=null;return;
+ // Con Pointer Events, un click físico viene DESPUÉS de pointerdown.
+ // No se debe ejecutar de nuevo, independientemente de su destino.
+ if('PointerEvent' in window&&(e.pointerType||e.detail!==0)){
+  e.preventDefault();return;
  }
- if(action==='stop')stopLane(n,e);
- if(action==='undo')undoLane(n);
- if(action==='dq')dqLane(n);
+ handleLaneButton(e.target.closest('button[data-action]'),e);
 });
-if(!DISPLAY){renderPresets();renderMedalOptions();initSizeEditor();$('startBtn').addEventListener('click',begin);$('nextBtn').addEventListener('click',()=>advance(true));$('resetBtn').addEventListener('click',resetRace);$('restartCompetitionBtn').addEventListener('click',restartCompetition);$('restartFromSettings').addEventListener('click',()=>{if(model.phase==='running')return;closeSettings();restartCompetition()});$('projectBtn').addEventListener('click',openProjector);$('settingsBtn').addEventListener('click',openSettings);$('closeSettings').addEventListener('click',closeSettings);$('cancelSettings').addEventListener('click',closeSettings);$('saveSettings').addEventListener('click',saveSettings);$('settingsTabs').addEventListener('click',e=>{const tab=e.target.closest('[data-group]');if(tab)activateSettingsGroup(tab.dataset.group)});$('settingsSubtabs').addEventListener('click',e=>{const tab=e.target.closest('[data-page]');if(tab)activateSettingsPage(tab.dataset.page)});$('cfgEvent').addEventListener('change',changeEventEditor);$('cfgEvent').addEventListener('blur',()=>{if(cfgEventNumber()!==activeEditorEvent)changeEventEditor()});$('cfgTrial').innerHTML=TRIAL_OPTIONS;$('cfgTrial').addEventListener('change',handleTrialChange);$('cfgSex').addEventListener('change',()=>{updateEventPreview();editorSnapshot()});$('cfgMaxHeats').addEventListener('change',editorSnapshot);$('goProgram').addEventListener('click',()=>activateSettingsPage('program'));$('addProgramEvent').addEventListener('click',addProgramEvent);$('programList').addEventListener('change',programChange);$('programList').addEventListener('input',e=>{if(e.target.matches('input[data-program=heats]'))programChange(e)});$('programList').addEventListener('click',e=>{const b=e.target.closest('[data-remove-event]');if(!b)return;const key=b.dataset.removeEvent;delete pendingEvents[key];if(key===String(activeEditorEvent))activeEditorEvent=0;renderProgram()});$('cfgFont').addEventListener('change',updateFontPreviews);$('cfgClockFont').addEventListener('change',updateFontPreviews);$('colorPresetGrid').addEventListener('click',e=>{const b=e.target.closest('[data-preset]');if(b)selectPalette(b.dataset.preset)});$('medalPaletteGrid').addEventListener('click',e=>{const b=e.target.closest('[data-medal-preset]');if(b)selectMedalPalette(b.dataset.medalPreset)});$('medalStyleGrid').addEventListener('click',e=>{const b=e.target.closest('[data-podium-style]');if(b)selectPodiumStyle(b.dataset.podiumStyle)});
+if(!DISPLAY){renderPresets();renderMedalOptions();initSizeEditor();$('startBtn').addEventListener('click',begin);$('nextBtn').addEventListener('click',()=>advance(true));$('resetBtn').addEventListener('click',resetRace);$('restartCompetitionBtn').addEventListener('click',restartCompetition);$('restartFromSettings').addEventListener('click',()=>{if(model.phase==='running')return;closeSettings();restartCompetition()});$('projectBtn').addEventListener('click',handleScreenControl);updateScreenControl();$('settingsBtn').addEventListener('click',openSettings);$('closeSettings').addEventListener('click',closeSettings);$('cancelSettings').addEventListener('click',closeSettings);$('saveSettings').addEventListener('click',saveSettings);$('settingsTabs').addEventListener('click',e=>{const tab=e.target.closest('[data-group]');if(tab)activateSettingsGroup(tab.dataset.group)});$('settingsSubtabs').addEventListener('click',e=>{const tab=e.target.closest('[data-page]');if(tab)activateSettingsPage(tab.dataset.page)});$('cfgEvent').addEventListener('change',changeEventEditor);$('cfgEvent').addEventListener('blur',()=>{if(cfgEventNumber()!==activeEditorEvent)changeEventEditor()});$('cfgTrial').innerHTML=TRIAL_OPTIONS;$('cfgTrial').addEventListener('change',handleTrialChange);$('cfgSex').addEventListener('change',()=>{updateEventPreview();editorSnapshot()});$('cfgMaxHeats').addEventListener('change',editorSnapshot);$('goProgram').addEventListener('click',()=>activateSettingsPage('program'));$('addProgramEvent').addEventListener('click',addProgramEvent);$('programList').addEventListener('change',programChange);$('programList').addEventListener('input',e=>{if(e.target.matches('input[data-program=heats]'))programChange(e)});$('programList').addEventListener('click',e=>{const b=e.target.closest('[data-remove-event]');if(!b)return;const key=b.dataset.removeEvent;delete pendingEvents[key];if(key===String(activeEditorEvent))activeEditorEvent=0;renderProgram()});$('cfgFont').addEventListener('change',updateFontPreviews);$('cfgClockFont').addEventListener('change',updateFontPreviews);$('colorPresetGrid').addEventListener('click',e=>{const b=e.target.closest('[data-preset]');if(b)selectPalette(b.dataset.preset)});$('medalPaletteGrid').addEventListener('click',e=>{const b=e.target.closest('[data-medal-preset]');if(b)selectMedalPalette(b.dataset.medalPreset)});$('medalStyleGrid').addEventListener('click',e=>{const b=e.target.closest('[data-podium-style]');if(b)selectPodiumStyle(b.dataset.podiumStyle)});
  for(const [id] of COLOR_FIELDS)$(id).addEventListener('input',()=>{selectPalette('custom');updateSizesPreview()});
  for(const [id] of MEDAL_FIELDS)$(id).addEventListener('input',()=>{ $('settingsDialog').dataset.podiumPalette='custom'; syncMedalButtons(); updateMedalPreview();});
  $('textSizesGrid').addEventListener('input',e=>{if(e.target.matches('[data-text-size]'))updateSizesPreview()});
@@ -1351,7 +1453,10 @@ window.addEventListener('keydown',e=>{
 });
 }else{document.addEventListener('click',()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.().catch(()=>{})});window.addEventListener('load',()=>{try{window.opener?.postMessage({kind:'gato-request'},'*')}catch(e){}})}
 // Recalcula la densidad al mover la ventana a otro monitor o cambiar su resolución.
-window.addEventListener('resize',fitBoard,{passive:true});
+window.addEventListener('resize',()=>{updateScreenControl();fitBoard()},{passive:true});
+document.addEventListener('fullscreenchange',()=>{updateScreenControl();requestAnimationFrame(fitBoard)});
+// No abrir el menú contextual ni seleccionar los datos del marcador al mantener pulsado.
+document.addEventListener('contextmenu',e=>{if(e.target.closest('.screen-board,.operator-toolbar')&&!e.target.closest('input,textarea,select,[contenteditable="true"]'))e.preventDefault()});
 if(!DISPLAY&&typeof ResizeObserver!=='undefined'){const resizeBoard=new ResizeObserver(()=>fitBoard());resizeBoard.observe($('board'));}
 // Restauración tras cerrar/recargar, sin reiniciar cronómetros ya iniciados.
 render();if(DISPLAY){try{window.opener?.postMessage({kind:'gato-request'},'*')}catch(e){}}requestAnimationFrame(clockLoop);
